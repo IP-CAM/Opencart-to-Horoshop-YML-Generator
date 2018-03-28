@@ -1,5 +1,5 @@
 # YML Generator
-<b>Creatas YML list of products from Opencart 2.3 store.</b>
+<b>Creates YML list of products from Opencart 2.3 store.</b>
 <br><br>
 Basic options:
 <ul>

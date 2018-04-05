@@ -136,7 +136,9 @@ class YGenerator
 
                         ### Adding attributes
                         for ($i = 0; $i < count($listAttributes); $i++) {
-                            $param = $offer->addChild('param', $listAttributes[$i]['valueAttribute']);
+                            $valueAttribute = trim($listAttributes[$i]['valueAttribute']);
+                            $valueAttribute = $this->cutExtraCharacters($valueAttribute);
+                            $param = $offer->addChild('param', $valueAttribute);
                             $param->addAttribute('name', $listAttributes[$i]['nameAttribute']);
                         }
                     }
@@ -144,6 +146,19 @@ class YGenerator
             }
         }
         return $xml;
+    }
+
+    /**
+     * @param $str
+     * @return mixed
+     */
+    private function cutExtraCharacters($str){
+        $cyr = [
+            ' кг', ' л', ' Вт', ' куб. м/ч', ' см', ' дБ'
+        ];
+
+        $str = str_replace($cyr, '', $str);
+        return $str;
     }
 
 
@@ -197,6 +212,7 @@ class YGenerator
         $str = preg_replace('/&(?!#?[a-z0-9]+;)/', '&amp;', $str);
         $str = preg_replace('/<[^>]*>/', '', $str);
         $str = str_replace('P.S. В случае отсутствия товара, оставьте заявку на нашем сайте!', '', $str);
+        $str = str_replace('Характеристики и комплектация товара могут изменяться производителем без уведомления', '', $str);
 //    $str = $str.replaceAll("<[^>]*>", "");
         return $str;
     }

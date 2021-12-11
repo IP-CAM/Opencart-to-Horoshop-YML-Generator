@@ -10,7 +10,17 @@ if(!isset($_GET[XML_KEY])) {
     date_default_timezone_set('Europe/Kiev');
     $yGenerator = new YGenerator();
 
+    //ОПЦИИ
     $yGenerator->x_lang = 2; //Язык по умолчанчию (0, чтобы проигнорировать)
+    //Выводить снятые с публикации
+    //Выводить без картинок
+    //Выводить с нулевым наличием
+    //Выводить без названия
+
+    /*Что делать если:
+    - только один язык
+    */
+
 
     $xml = $yGenerator->getYml();
     Header('Content-type: text/xml');
@@ -83,7 +93,7 @@ class YGenerator
         $shop->addChild('name', "Horoshop-Export");
         $shop->addChild('company', "Horoshop");
         $shop->addChild('url', "https://www.horoshop.ua/");
-        $shop->addChild('version', "1.0.0");
+        $shop->addChild('version', "1.0.1");
 
         $currencies = $shop->addChild('currencies');
         $currency = $currencies->addChild('currency');
@@ -157,9 +167,23 @@ class YGenerator
                         //OPTIONS
                         //if($alloptions) { $offer->addChild('options', var_export($alloptions, true)); }
                         if($alloptions) {
-                          foreach($alloptions as $options) {
-                            $param = $offer->addChild('options', $options['name']);
-                            $param->addAttribute('name', $options['option_name']);
+                          $options = $offer->addChild('options');
+                          foreach($alloptions as $option_values) {
+                            //$option = $options->addChild('option', $option_values['name']);
+                            $option = $options->addChild('option');
+                            $option->addAttribute('name', $option_values['option_name']);
+                            /*$option->addChild('name', $option_values['name']);
+                            $option->addChild('price', $option_values['price']);
+                            $option->addChild('artikul', $option_values['artikul']);
+                            $option->addChild('barcode', $option_values['barcode']);
+                            $option->addChild('image', $option_values['image']);*/
+                            foreach($option_values as $key=>$value) {
+                               if($value) {
+                                // echo $key . ':' . $value . PHP_EOL;
+                                 $option->addChild(str_replace('1c', 'one_c', $key), htmlspecialchars($value));
+                               }
+                            }
+                            //price, artikul, barcode, image
                           }
                         }
                         $offer->addChild('url', $textUrl);

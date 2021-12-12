@@ -2,48 +2,20 @@
 /**
  * YML generator for Horoshop.ua
  */
- 
+
 require_once __DIR__ . '/config.php';
     $x_pretty = 1; //Человекочитабельный формат или в одну строку
 
-if(!isset($_GET[XML_KEY])) {
-    date_default_timezone_set('Europe/Kiev');
-    $yGenerator = new YGenerator();
 
-    //ОПЦИИ
-    $yGenerator->x_lang = 2; //Язык по умолчанчию (0, чтобы проигнорировать)
-    //Выводить снятые с публикации
-    //Выводить без картинок
-    //Выводить с нулевым наличием
-    //Выводить без названия
-
-    /*Что делать если:
-    - только один язык
-    */
-
-
-    $xml = $yGenerator->getYml();
-    Header('Content-type: text/xml');
-
-    if($x_pretty) {
-      $doc = new DOMDocument();
-      $doc->preserveWhiteSpace = false;
-      $doc->formatOutput = true;
-      $doc->loadXML($xml->asXML());
-      echo $doc->saveXML();
-    } else {
-      print($xml->asXML());
-    }
-
-}else echo '-= fuck off =-';
-
-// http://coffeerings.posterous.com/php-simplexml-and-cdata
-class SimpleXMLExtended extends SimpleXMLElement {
-  public function addCData($cdata_text) {
-    $node = dom_import_simplexml($this); 
-    $no   = $node->ownerDocument; 
-    $node->appendChild($no->createCDATASection($cdata_text)); 
-  } 
+if(php_sapi_name() == 'cli') {
+    $arguments = getopt("",array(
+        "x_limit:",
+        "x_lang:",
+    ));
+    $XML_KEY=true;
+} else {
+    $arguments = $_REQUEST;
+    if(isset($_GET[XML_KEY])) {$XML_KEY=true;} else {$XML_KEY=false;}
 }
 
 /**
@@ -53,9 +25,31 @@ class SimpleXMLExtended extends SimpleXMLElement {
 class YGenerator
 {
 
-    public $x_lang; //Язык по умолчанчию (0, чтобы проигнорировать)
+    private $languages = array(); //Массив языков, которые используются на сайте;
 
-    private $languages;
+    private $x_lang = 0;  //Язык по умолчанчию (0, чтобы проигнорировать)
+    private $x_limit = 10; //Ограничение в количестве товаров (для отладки, чтоб быстрее работало)
+
+    public function __construct($arguments) {
+        //?? is php7+ dependend function. May fail on ancient php5.x installations
+        //in this case should be rewriten to isset() function
+   
+        foreach($arguments as $key=>$value) {
+            $this->$key = (int)$value;
+        }
+
+            //ОПЦИИ
+    
+    //Выводить снятые с публикации
+    //Выводить без картинок
+    //Выводить с нулевым наличием
+    //Выводить без названия
+
+    /*Что делать если:
+    - только один язык
+    */
+
+    }
 
     /**
      * Building YML
@@ -76,7 +70,7 @@ class YGenerator
         mysqli_set_charset($con, "utf8");
 
         $this->languages = $this->getLanguages($con);
-	$base_url = $_SERVER['SERVER_NAME'];
+
         $base_url = sprintf(
           "%s://%s",
           isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
@@ -111,7 +105,7 @@ class YGenerator
 
         // #### Categories Section ####
         $categories = $shop->addChild('categories');
-        $sql = "SELECT `category_id`, `name` FROM `oc_category_description` WHERE 1";
+        $sql = "SELECT `category_id`, `name`, `language_id` FROM `oc_category_description` WHERE 1";
         if($this->x_lang) { $sql .= " AND language_id = $this->x_lang"; }
         $sql .= ' ORDER BY `category_id`'; 
         $result = $con->query($sql);
@@ -119,6 +113,7 @@ class YGenerator
             while ($row = $result->fetch_assoc()) {
                 $category = $categories->addChild('category', htmlspecialchars($row['name'])); //echo $row['name'] . PHP_EOL;
                 $category->addAttribute("id", $row['category_id']);
+                $category->addAttribute("lang", $this->languages[$row['language_id']]['code']);
                 $parentId = $this->getParentIdCategory($con, $row['category_id']);
                 if ($parentId != 0) {
                     $category->addAttribute("parentId", $parentId);
@@ -131,6 +126,7 @@ class YGenerator
         $offers = $shop->addChild('offers');
         //$sql = "SELECT * FROM  `oc_product` WHERE `quantity` > 0";
         $sql = "SELECT * FROM  `oc_product`";
+        if($this->x_limit) { $sql .= " LIMIT $this->x_limit"; }
         $result = $con->query($sql);
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
@@ -148,6 +144,20 @@ class YGenerator
                         $data = array();
                         $nameAttribute = $this->getNameAttributeById($con, $row3['attribute_id']);
                         $data['nameAttribute'] = $nameAttribute;
+                        $data['attribute_id'] = $row3['attribute_id'];
+                        $valueAttribute = htmlspecialchars($row3['text']);
+                        $data['valueAttribute'] = $valueAttribute;
+                        $data['sortOrder'] = $this->getAttributeSortOrder($con, $row3['attribute_id']);
+
+                        array_push($listAttributes, $data);
+                    }
+                        $alloptions = $this->getAllProductOptions($con, $productId);
+
+                    //checking, how many attributes in product && if exist image of products
+                    //don't adding the product if min attributes
+//////                    if (count($listAttributes) > 4 && strlen($row['image']) > 4) {
+                        $offer = $offers->addChild('offer');
+                        $offer->addAttribute("id", $row['product_id']);
                         $valueAttribute = htmlspecialchars($row3['text']);
                         $data['valueAttribute'] = $valueAttribute;
                         $data['sortOrder'] = $this->getAttributeSortOrder($con, $row3['attribute_id']);
@@ -219,13 +229,15 @@ class YGenerator
                             while ($row2 = $result2->fetch_assoc()) {
                                 //$text = $this->removeTags($row2['description']);
                                 $text = $row2['description'];
-                                $name = $offer->addChild('name', htmlspecialchars($row2['name']));
+                                $langid = $row2['language_id'];
+                                $name = $offer->addChild('name_'.$this->languages[$langid]['code'], htmlspecialchars($row2['name']));
                                 if (strlen(trim($text)) == 0) {
-                                    $offer->addChild('description'); //Empty description if doesnt' exists
+                                    $offer->addChild('description_'.$this->languages[$langid]['code']); //Empty description if doesnt' exists
                                 } else {
                                     //$offer->addChild('description');
-                                    $offer->description = NULL;
-                                    $offer->description->addCData($text);
+                                    $description_name = 'description_' . $this->languages[$langid]['code'];
+                                    $offer->$description_name = NULL;
+                                    $offer->$description_name->addCData($text);
                                     //$offer->addChild('description', $text);
                                 }
                             }
@@ -248,6 +260,7 @@ class YGenerator
                             $valueAttribute = $this->cutExtraCharacters($valueAttribute);
                             $param = $offer->addChild('param', $valueAttribute);
                             $param->addAttribute('name', $listAttributes[$i]['nameAttribute']);
+                            $param->addAttribute('id', $listAttributes[$i]['attribute_id']);
                         }
                    /////// }
                 //}
@@ -412,7 +425,7 @@ class YGenerator
                         WHERE pov.option_id IN (". implode(',', array_map('intval', $option_ids)) .") AND pov.product_id = '". (int)$product_id."'
                                 AND ovd.language_id = '$lang'");
                 $result = $con->query($sql);
-                return $result->fetch_all(MYSQL_ASSOC);
+                return $result->fetch_all(MYSQLI_ASSOC);
         }
 
         public function getAllProductOptions($con, $product_id) {
@@ -426,6 +439,34 @@ class YGenerator
                         WHERE pov.product_id = '". (int)$product_id."'
                                 AND ovd.language_id = '$lang'");
                 $result = $con->query($sql);
-                return $result->fetch_all(MYSQL_ASSOC);
+                return $result->fetch_all(MYSQLI_ASSOC);
         }
 }
+
+// http://coffeerings.posterous.com/php-simplexml-and-cdata
+class SimpleXMLExtended extends SimpleXMLElement {
+  public function addCData($cdata_text) {
+    $node = dom_import_simplexml($this); 
+    $no   = $node->ownerDocument; 
+    $node->appendChild($no->createCDATASection($cdata_text)); 
+  } 
+}
+
+if($XML_KEY) {
+    date_default_timezone_set('Europe/Kiev');
+    $yGenerator = new YGenerator($arguments);
+
+    $xml = $yGenerator->getYml();
+    Header('Content-type: text/xml');
+
+    if($x_pretty) {
+      $doc = new DOMDocument();
+      $doc->preserveWhiteSpace = false;
+      $doc->formatOutput = true;
+      $doc->loadXML($xml->asXML());
+      echo $doc->saveXML();
+    } else {
+      print($xml->asXML());
+    }
+
+}else echo '-= access denied =-';

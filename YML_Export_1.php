@@ -147,12 +147,13 @@ class YGenerator
 //                if ($result3->num_rows > 0) { //Не выгружать без атрибутов
                     while ($row3 = $result3->fetch_assoc()) {
                         $data = array();
-                        $nameAttribute = $this->getNameAttributeById($con, $row3['attribute_id']);
+                        $nameAttribute = $this->getNameAttributeById($con, $row3['attribute_id'], $row3['language_id']);
                         $data['nameAttribute'] = $nameAttribute;
                         $data['attribute_id'] = $row3['attribute_id'];
                         $valueAttribute = htmlspecialchars($row3['text']);
                         $data['valueAttribute'] = $valueAttribute;
                         $data['sortOrder'] = $this->getAttributeSortOrder($con, $row3['attribute_id']);
+                        $data['language_id'] = $row3['language_id'];
 
                         array_push($listAttributes, $data);
                     }
@@ -253,6 +254,7 @@ class YGenerator
                             $param = $offer->addChild('param', $valueAttribute);
                             $param->addAttribute('name', $listAttributes[$i]['nameAttribute']);
                             $param->addAttribute('id', $listAttributes[$i]['attribute_id']);
+                            $param->addAttribute('language_id', $listAttributes[$i]['language_id']);
                         }
                    /////// }
                 //}
@@ -301,10 +303,10 @@ class YGenerator
      * @param $attributeId
      * @return string
      */
-    private function getNameAttributeById($con, $attributeId)
+    private function getNameAttributeById($con, $attributeId, $language_id)
     {
         $sql = "SELECT `name` FROM `oc_attribute_description` WHERE `attribute_id` = '$attributeId'";
-        if($this->x_lang) { $sql .= " AND language_id = $this->x_lang"; }
+        $sql .= " AND language_id = $language_id";
         $result = $con->query($sql);
         $name = '';
         if ($result->num_rows > 0) {

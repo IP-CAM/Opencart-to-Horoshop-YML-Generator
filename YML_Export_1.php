@@ -158,19 +158,6 @@ class YGenerator
 //////                    if (count($listAttributes) > 4 && strlen($row['image']) > 4) {
                         $offer = $offers->addChild('offer');
                         $offer->addAttribute("id", $row['product_id']);
-                        $valueAttribute = htmlspecialchars($row3['text']);
-                        $data['valueAttribute'] = $valueAttribute;
-                        $data['sortOrder'] = $this->getAttributeSortOrder($con, $row3['attribute_id']);
-
-                        array_push($listAttributes, $data);
-                    }
-                        $alloptions = $this->getAllProductOptions($con, $productId);
-
-                    //checking, how many attributes in product && if exist image of products
-                    //don't adding the product if min attributes
-//////                    if (count($listAttributes) > 4 && strlen($row['image']) > 4) {
-                        $offer = $offers->addChild('offer');
-                        $offer->addAttribute("id", $row['product_id']);
                         $offer->addAttribute("available", "true");
                         $textUrl = $base_url . '/index.php?route=product/product&amp;product_id=' . $row['product_id'];
 

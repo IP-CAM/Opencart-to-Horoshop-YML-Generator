@@ -26,6 +26,7 @@ class YGenerator
 {
 
     private $languages = array(); //Массив языков, которые используются на сайте;
+    private $active_languages;  //Список активных языков 
 
     private $x_lang = 0;  //Язык по умолчанчию (0, чтобы проигнорировать)
     private $x_limit = 10; //Ограничение в количестве товаров (для отладки, чтоб быстрее работало)
@@ -47,6 +48,7 @@ class YGenerator
 
     /*Что делать если:
     - только один язык
+    + если присущи языки, которые не активны или которых нет в списке
     */
 
     }
@@ -70,6 +72,7 @@ class YGenerator
         mysqli_set_charset($con, "utf8");
 
         $this->languages = $this->getLanguages($con);
+        $this->active_languages = array_keys($this->languages);
 
         $base_url = sprintf(
           "%s://%s",
@@ -106,8 +109,10 @@ class YGenerator
         // #### Categories Section ####
         $categories = $shop->addChild('categories');
         $sql = "SELECT `category_id`, `name`, `language_id` FROM `oc_category_description` WHERE 1";
+        $sql .= ' AND language_id IN(' . implode(',',$this->active_languages) . ')';
         if($this->x_lang) { $sql .= " AND language_id = $this->x_lang"; }
         $sql .= ' ORDER BY `category_id`'; 
+
         $result = $con->query($sql);
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
@@ -394,8 +399,8 @@ class YGenerator
         $languages = array();
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
-		$languages[$row['language_id']]['name'] = $row['name'];
-		$languages[$row['language_id']]['code'] = $row['code'];
+                $languages[$row['language_id']]['name'] = $row['name'];
+                $languages[$row['language_id']]['code'] = $row['code'];
             }
         }
         return $languages;
@@ -417,14 +422,22 @@ class YGenerator
 
         public function getAllProductOptions($con, $product_id) {
                 $lang = (int)$this->x_lang;
-
-                $sql = ("SELECT pov.*, od.name AS option_name, ovd.name, ov.image
+                if($lang) {
+                    $sql = ("SELECT pov.*, od.name AS option_name, ovd.name, ov.image
                         FROM " . DB_PREFIX . "product_option_value pov
                         LEFT JOIN " . DB_PREFIX . "option_value ov ON (ov.option_value_id = pov.option_value_id)
                         LEFT JOIN " . DB_PREFIX . "option_value_description ovd ON (pov.option_value_id = ovd.option_value_id)
                         LEFT JOIN " . DB_PREFIX . "option_description od ON (od.option_id = pov.option_id) AND (od.language_id = '$lang')
                         WHERE pov.product_id = '". (int)$product_id."'
                                 AND ovd.language_id = '$lang'");
+                } else {
+                    $sql = ("SELECT pov.*, od.name AS option_name, ovd.name, ov.image
+                        FROM " . DB_PREFIX . "product_option_value pov
+                        LEFT JOIN " . DB_PREFIX . "option_value ov ON (ov.option_value_id = pov.option_value_id)
+                        LEFT JOIN " . DB_PREFIX . "option_value_description ovd ON (pov.option_value_id = ovd.option_value_id)
+                        LEFT JOIN " . DB_PREFIX . "option_description od ON (od.option_id = pov.option_id) AND (od.language_id = ovd.language_id)
+                        WHERE pov.product_id = '". (int)$product_id. "'");
+                }
                 $result = $con->query($sql);
                 return $result->fetch_all(MYSQLI_ASSOC);
         }

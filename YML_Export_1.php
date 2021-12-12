@@ -137,7 +137,19 @@ class YGenerator
             while ($row = $result->fetch_assoc()) {
                 $productId = $row['product_id'];
                 $manufacturerId = $row['manufacturer_id'];
+                $vendorName = $this->getVendorName($con, $manufacturerId);
                 $stock_quantity = $row['quantity'];
+                $price = $row['price'];
+                $img = $base_url . '/image/' . $row['image'];
+
+                //Multiple pictures section
+                $sql3 = "SELECT * FROM `oc_product_image` WHERE `product_id` = '$productId' ORDER BY sort_order ASC";
+                $result3 = $con->query($sql3);
+                if ($result3->num_rows > 0) {
+                    while ($row3 = $result3->fetch_assoc()) {
+                    $images = $base_url . '/image/' . $row3['image'];
+                    }
+                }
 
                 // #### Attribute section ####
                 $listAttributes = array();
@@ -157,17 +169,47 @@ class YGenerator
 
                         array_push($listAttributes, $data);
                     }
-                        $alloptions = $this->getAllProductOptions($con, $productId);
 
                     //checking, how many attributes in product && if exist image of products
                     //don't adding the product if min attributes
 //////                    if (count($listAttributes) > 4 && strlen($row['image']) > 4) {
-                        $offer = $offers->addChild('offer');
-                        $offer->addAttribute("id", $row['product_id']);
-                        $offer->addAttribute("available", "true");
-                        $textUrl = $base_url . '/index.php?route=product/product&amp;product_id=' . $row['product_id'];
+                        $textUrl = $base_url . '/index.php?route=product/product&amp;product_id=' . $productId;
+                        $category = $this->getCategoryOfProduct($con, $productId);
 
+                        $descriptions = array();
+                        $sql2 = "SELECT * FROM `oc_product_description` WHERE `product_id` = '$productId'";
+                        if($this->x_lang) { $sql2 .= " AND language_id = $this->x_lang"; }
+                        $result2 = $con->query($sql2);
+                        if ($result2->num_rows > 0) {
+                            while ($row2 = $result2->fetch_assoc()) {
+                                //$text = $this->removeTags($row2['description']);
+                                $text = $row2['description'];
+                                $langid = $row2['language_id'];
+                                $name = htmlspecialchars($row2['name']);
+
+                                $data['text'] = $text;
+                                $data['langid'] = $langid;
+                                $data['name'] = $name;
+                                array_push($descriptions, $data);
+                            }
+                        }
+
+//                    sort array by `sortOrder`
+                        for ($i = 0; $i < count($listAttributes); $i++) {
+                            for ($j = $i + 1; $j < count($listAttributes); $j++) {
+                                if ($listAttributes[$i]['sortOrder'] > $listAttributes[$j]['sortOrder']) {
+                                    $temp = $listAttributes[$j];
+                                    $listAttributes[$j] = $listAttributes[$i];
+                                    $listAttributes[$i] = $temp;
+                                }
+                            }
+                        }
+///END of Variables
+                        $alloptions = $this->getAllProductOptions($con, $productId);
+
+                        $offer = $offers->addChild('offer');
                         //OPTIONS
+                        // var_dump($alloptions); die();
                         //if($alloptions) { $offer->addChild('options', var_export($alloptions, true)); }
                         if($alloptions) {
                           $options = $offer->addChild('options');
@@ -189,64 +231,40 @@ class YGenerator
                             //price, artikul, barcode, image
                           }
                         }
+
+                        $offer->addAttribute("id", $productId);
+                        $offer->addAttribute("available", "true");
                         $offer->addChild('url', $textUrl);
-                        $offer->addChild('price', $row['price']);
+                        $offer->addChild('price', $price);
                         $offer->addChild('currencyId', 'UAH');
-                        $offer->addChild('categoryId', $this->getCategoryOfProduct($con, $row['product_id']));
-			if($row['image']) {
-                          $img = $base_url . '/image/' . $row['image'];
-                          $offer->addChild('picture', $img);
+                        $offer->addChild('categoryId', $category);
+                        if($img) {
+                            $offer->addChild('picture', $img);
                         }
 
-                        //Multiple pictures section
-                        $sql3 = "SELECT * FROM `oc_product_image` WHERE `product_id` = '$productId' ORDER BY sort_order ASC";
-                        $result3 = $con->query($sql3);
-                        if ($result3->num_rows > 0) {
-                          while ($row3 = $result3->fetch_assoc()) {
-                            $img = $base_url . '/image/' . $row3['image'];
-                            $offer->addChild('picture', $img);
-                          }
+                        foreach($images as $value) {
+                            $offer->addChild('picture', $value);
                         }
  
-                        $vendorName = $this->getVendorName($con, $manufacturerId);
                         $offer->addChild('vendor', $vendorName);
                         $offer->addChild('stock_quantity', $stock_quantity);
                         //$offer->addChild('store', "false");
                         //$offer->addChild('pickup', "false");
-                        //$offer->addChild('delivery', "false");
-
-                        $sql2 = "SELECT * FROM `oc_product_description` WHERE `product_id` = '$productId'";
-                        if($this->x_lang) { $sql2 .= " AND language_id = $this->x_lang"; }
-                        $result2 = $con->query($sql2);
-                        if ($result2->num_rows > 0) {
-                            while ($row2 = $result2->fetch_assoc()) {
-                                //$text = $this->removeTags($row2['description']);
-                                $text = $row2['description'];
-                                $langid = $row2['language_id'];
-                                $name = $offer->addChild('name_'.$this->languages[$langid]['code'], htmlspecialchars($row2['name']));
-                                if (strlen(trim($text)) == 0) {
-                                    $offer->addChild('description_'.$this->languages[$langid]['code']); //Empty description if doesnt' exists
-                                } else {
-                                    //$offer->addChild('description');
-                                    $description_name = 'description_' . $this->languages[$langid]['code'];
-                                    $offer->$description_name = NULL;
-                                    $offer->$description_name->addCData($text);
-                                    //$offer->addChild('description', $text);
-                                }
+                        //$offer->addChild('delivery', "false")
+                        foreach ($descriptions as $description) {
+                            extract($description);
+                            $langname = $this->languages[$langid]['code'];
+                            $offer->addChild('name_' . $langname, $name);
+                            if (strlen(trim($text)) == 0) {
+                                $offer->addChild('description_'.$langname); //Empty description if doesnt' exists
+                            } else {
+                                //$offer->addChild('description');
+                                $description_name = 'description_' . $langname;
+                                $offer->$description_name = NULL;
+                                $offer->$description_name->addCData($text);
+                                //$offer->addChild('description', $text);
                             }
                         }
-
-//                    sort array by `sortOrder`
-                        for ($i = 0; $i < count($listAttributes); $i++) {
-                            for ($j = $i + 1; $j < count($listAttributes); $j++) {
-                                if ($listAttributes[$i]['sortOrder'] > $listAttributes[$j]['sortOrder']) {
-                                    $temp = $listAttributes[$j];
-                                    $listAttributes[$j] = $listAttributes[$i];
-                                    $listAttributes[$i] = $temp;
-                                }
-                            }
-                        }
-
                         ### Adding attributes
                         for ($i = 0; $i < count($listAttributes); $i++) {
                             $valueAttribute = trim($listAttributes[$i]['valueAttribute']);

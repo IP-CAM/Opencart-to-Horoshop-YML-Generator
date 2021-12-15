@@ -4,13 +4,12 @@
  */
 
 require_once __DIR__ . '/config.php';
-    $x_pretty = 1; //Человекочитабельный формат или в одну строку
-
 
 if(php_sapi_name() == 'cli') {
     $arguments = getopt("",array(
         "x_limit:",
         "x_lang:",
+        "x_pretty:",
     ));
     $XML_KEY=true;
 } else {
@@ -30,6 +29,7 @@ class YGenerator
 
     private $x_lang = 0;  //Язык по умолчанчию (0, чтобы проигнорировать)
     private $x_limit = 10; //Ограничение в количестве товаров (для отладки, чтоб быстрее работало)
+    public $x_pretty = 1; //Красивое форматирование XML - Человекочитабельный формат или в одну строку
 
     public function __construct($arguments) {
         //?? is php7+ dependend function. May fail on ancient php5.x installations
@@ -479,7 +479,7 @@ if($XML_KEY) {
     $xml = $yGenerator->getYml();
     Header('Content-type: text/xml');
 
-    if($x_pretty) {
+    if($yGenerator->x_pretty) {
       $doc = new DOMDocument();
       $doc->preserveWhiteSpace = false;
       $doc->formatOutput = true;

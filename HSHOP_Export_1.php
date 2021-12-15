@@ -80,13 +80,13 @@ class YGenerator
           $_SERVER['SERVER_NAME']
         );
 
-        $xml = new SimpleXMLExtended("<?xml version=\"1.0\" encoding=\"UTF-8\"?><yml_catalog/>");
+        $xml = new SimpleXMLExtended("<?xml version=\"1.0\" encoding=\"UTF-8\"?><hcatalog/>");
         $dt = date("Y-m-d");
         $tm = date("H:i");
         $xml->addAttribute("date", $dt . ' ' . $tm);
 
 
-        $shop = $xml->addChild('shop');
+        $shop = $xml->addChild('hshop');
         $shop->addChild('name', "Horoshop-Export");
         $shop->addChild('company', "Horoshop");
         $shop->addChild('url', "https://www.horoshop.ua/");
@@ -108,20 +108,39 @@ class YGenerator
 
         // #### Categories Section ####
         $categories = $shop->addChild('categories');
-        $sql = "SELECT `category_id`, `name`, `language_id` FROM `oc_category_description` WHERE 1";
-        $sql .= ' AND language_id IN(' . implode(',',$this->active_languages) . ')';
-        if($this->x_lang) { $sql .= " AND language_id = $this->x_lang"; }
-        $sql .= ' ORDER BY `category_id`'; 
+        $sql = "SELECT * FROM `oc_category` WHERE 1";
+        $sql .= ' AND status = 1';
+        $sql .= ' ORDER BY `category_id`';
 
-        $result = $con->query($sql);
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $category = $categories->addChild('category', htmlspecialchars($row['name'])); //echo $row['name'] . PHP_EOL;
-                $category->addAttribute("id", $row['category_id']);
-                $category->addAttribute("lang", $this->languages[$row['language_id']]['code']);
-                $parentId = $this->getParentIdCategory($con, $row['category_id']);
-                if ($parentId != 0) {
-                    $category->addAttribute("parentId", $parentId);
+        $result2 = $con->query($sql);
+        if ($result2->num_rows > 0) {
+            while ($row2 = $result2->fetch_assoc()) {
+                $sql = "SELECT * FROM `oc_category_description` WHERE category_id = '" . $row2['category_id'] . "'";
+                $sql .= ' AND language_id IN(' . implode(',',$this->active_languages) . ')';
+                $result = $con->query($sql);
+                if ($result->num_rows > 0) {
+                    $category = $categories->addChild('category'); //echo $row['name'] . PHP_EOL;
+                    $category->addAttribute("id", $row2['category_id']);
+                    $category->addChild("sort_order", $row2['sort_order']);
+                    $category->addChild("top", $row2['top']);
+                    $category->addChild("image", $row2['image']);
+                    $category->addChild("url", $this->base_url . '/index.php?route=product/category&amp;category_id=' . $row2['category_id']);
+                    $parentId = $this->getParentIdCategory($con, $row2['category_id']);
+                    if ($parentId != 0) {
+                        $category->addAttribute("parentId", $parentId);
+                    }
+                    while ($row = $result->fetch_assoc()) {
+                        $language = $category->addChild("language");
+                        $language->addAttribute("id", $row['language_id']);
+                        $language->addChild("name", htmlspecialchars($row['name']));
+                        $language->addChild("seo_description");
+                        $language->seo_description = NULL;
+                        $language->seo_description->addCData($row['description']);
+                        $language->addChild("meta_title", htmlspecialchars($row['meta_title']));
+                        $language->addChild("meta_keyword", htmlspecialchars($row['meta_keyword']));
+                        $language->addChild("meta_description", htmlspecialchars($row['meta_description']));
+                        $language->addChild("h1", htmlspecialchars($row['h1']));
+                    }
                 }
             }
         }

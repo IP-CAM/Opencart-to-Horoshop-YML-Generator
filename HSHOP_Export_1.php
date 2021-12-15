@@ -206,13 +206,10 @@ class YGenerator
                         if ($result2->num_rows > 0) {
                             while ($row2 = $result2->fetch_assoc()) {
                                 //$text = $this->removeTags($row2['description']);
-                                $text = $row2['description'];
-                                $langid = $row2['language_id'];
-                                $name = htmlspecialchars($row2['name']);
-
-                                $data['text'] = $text;
-                                $data['langid'] = $langid;
-                                $data['name'] = $name;
+                                $data = array();
+                                foreach($row2 as $key=>$value) {
+                                    $data[$key] = htmlspecialchars($value);
+                                }
                                 array_push($descriptions, $data);
                             }
                         }
@@ -297,7 +294,15 @@ class YGenerator
                         //$offer->addChild('pickup', "false");
                         //$offer->addChild('delivery', "false")
                         foreach ($descriptions as $description) {
-                            extract($description);
+                            //extract($description);
+
+                                $text = $description['description'];
+                                unset($description['description']);
+                                $langid = $description['language_id'];
+                                unset($description['language_id']);
+                                $name = $description['name'];
+                                unset($description['name']);
+
                             $langname = $this->languages[$langid]['code'];
                             $name = $offer->addChild('name_' . $langname, $name);
                             $name->addAttribute('langid', $langid);
@@ -353,7 +358,15 @@ class YGenerator
                         //$offer->addChild('pickup', "false");
                         //$offer->addChild('delivery', "false")
                         foreach ($descriptions as $description) {
-                            extract($description);
+                            // extract($description);
+
+                                $text = $description['description'];
+                                unset($description['description']);
+                                $langid = $description['language_id'];
+                                unset($description['language_id']);
+                                $name = $description['name'];
+                                unset($description['name']);
+
                             $langname = $this->languages[$langid]['code'];
                             $name = $offer->addChild('name_' . $langname, $name);
                             $name->addAttribute('langid', $langid);

@@ -303,6 +303,7 @@ class YGenerator
 
                             }
                         } else {
+                            $offer = $offers->addChild('offer');
                             $offer->addAttribute("id", $productId);
                         /* HERE SHOULD START A MACRO */
                         /*****************************/

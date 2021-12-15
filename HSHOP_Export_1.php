@@ -10,11 +10,18 @@ if(php_sapi_name() == 'cli') {
         "x_limit:",
         "x_lang:",
         "x_pretty:",
+        "x_baseurl:",
     ));
     $XML_KEY=true;
+    $base_url = 'https://horoshop.ua';
 } else {
     $arguments = $_REQUEST;
     if(isset($_GET[XML_KEY])) {$XML_KEY=true;} else {$XML_KEY=false;}
+    $base_url = sprintf(
+        "%s://%s",
+        isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
+        $_SERVER['SERVER_NAME']
+    );
 }
 
 /**
@@ -26,6 +33,7 @@ class YGenerator
 
     private $languages = array(); //Массив языков, которые используются на сайте;
     private $active_languages;  //Список активных языков 
+    public  $base_url;
 
     private $x_lang = 0;  //Язык по умолчанчию (0, чтобы проигнорировать)
     private $x_limit = 10; //Ограничение в количестве товаров (для отладки, чтоб быстрее работало)
@@ -73,12 +81,6 @@ class YGenerator
 
         $this->languages = $this->getLanguages($con);
         $this->active_languages = array_keys($this->languages);
-
-        $base_url = sprintf(
-          "%s://%s",
-          isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
-          $_SERVER['SERVER_NAME']
-        );
 
         $xml = new SimpleXMLExtended("<?xml version=\"1.0\" encoding=\"UTF-8\"?><hcatalog/>");
         $dt = date("Y-m-d");
@@ -161,14 +163,14 @@ class YGenerator
                 $price = $row['price'];
                 $article = $row['model'];
                 $vendorCode = $row['sku'];
-                $img = $base_url . '/image/' . $row['image'];
+                $img = $this->base_url . '/image/' . $row['image'];
 
                 //Multiple pictures section
                 $sql3 = "SELECT * FROM `oc_product_image` WHERE `product_id` = '$productId' ORDER BY sort_order ASC";
                 $result3 = $con->query($sql3);
                 if ($result3->num_rows > 0) {
                     while ($row3 = $result3->fetch_assoc()) {
-                    $images[] = $base_url . '/image/' . $row3['image'];
+                    $images[] = $this->base_url . '/image/' . $row3['image'];
                     }
                 }
 
@@ -194,7 +196,7 @@ class YGenerator
                     //checking, how many attributes in product && if exist image of products
                     //don't adding the product if min attributes
 //////                    if (count($listAttributes) > 4 && strlen($row['image']) > 4) {
-                        $textUrl = $base_url . '/index.php?route=product/product&amp;product_id=' . $productId;
+                        $textUrl = $this->base_url . '/index.php?route=product/product&amp;product_id=' . $productId;
                         $category = $this->getCategoryOfProduct($con, $productId);
 
                         $descriptions = array();
@@ -577,6 +579,11 @@ class SimpleXMLExtended extends SimpleXMLElement {
 if($XML_KEY) {
     date_default_timezone_set('Europe/Kiev');
     $yGenerator = new YGenerator($arguments);
+    if(isset($yGenerator->x_baseurl)) {
+        $yGenerator->base_url = $arguments['x_baseurl'];
+    } else {
+        $yGenerator->base_url = $base_url;
+    }
 
     $xml = $yGenerator->getYml();
     Header('Content-type: text/xml');

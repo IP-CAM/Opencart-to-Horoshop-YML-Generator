@@ -149,7 +149,7 @@ class YGenerator
                 $result3 = $con->query($sql3);
                 if ($result3->num_rows > 0) {
                     while ($row3 = $result3->fetch_assoc()) {
-                    $images = $base_url . '/image/' . $row3['image'];
+                    $images[] = $base_url . '/image/' . $row3['image'];
                     }
                 }
 

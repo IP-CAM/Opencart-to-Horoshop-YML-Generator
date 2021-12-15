@@ -25,14 +25,14 @@ if(php_sapi_name() == 'cli') {
 }
 
 /**
- * Making YML layout depending Rozetka's pattern (rozetka.com.ua/sellerinfo/pricelist/)
+ * Making XML price in Horoshop format (https://horoshop.ua)
  * Class YGenerator
  */
 class YGenerator
 {
 
     private $languages = array(); //Массив языков, которые используются на сайте;
-    private $active_languages;  //Список активных языков 
+    private $active_languages;  //Список активных языков
     public  $base_url;
 
     private $x_lang = 0;  //Язык по умолчанчию (0, чтобы проигнорировать)

@@ -426,6 +426,7 @@ class YGenerator
         return $languages;
     }
 
+        //Unused function
         public function getProductOptions($option_ids, $product_id) {
                 $lang = (int)$this->x_lang;
 
@@ -451,7 +452,7 @@ class YGenerator
                         WHERE pov.product_id = '". (int)$product_id."'
                                 AND ovd.language_id = '$lang'");
                 } else {
-                    $sql = ("SELECT pov.*, od.name AS option_name, ovd.name, ov.image
+                    $sql = ("SELECT pov.*, od.name AS option_name, ovd.name, ov.image, ovd.language_id
                         FROM " . DB_PREFIX . "product_option_value pov
                         LEFT JOIN " . DB_PREFIX . "option_value ov ON (ov.option_value_id = pov.option_value_id)
                         LEFT JOIN " . DB_PREFIX . "option_value_description ovd ON (pov.option_value_id = ovd.option_value_id)

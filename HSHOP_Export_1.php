@@ -260,7 +260,7 @@ class YGenerator
                                         $option->addAttribute('id', $option_values['option_id']);
                                         $option->addAttribute('value_id', $option_values['option_value_id']);
                                         $option->addAttribute('type', 'modification');
-                                        $option->addAttribute('language_id', $option_values['language_id']);
+                                        $option->addAttribute('langid', $option_values['language_id']);
 
 
                                         /*$option->addChild('name', $option_values['name']);
@@ -299,7 +299,8 @@ class YGenerator
                         foreach ($descriptions as $description) {
                             extract($description);
                             $langname = $this->languages[$langid]['code'];
-                            $offer->addChild('name_' . $langname, $name);
+                            $name = $offer->addChild('name_' . $langname, $name);
+                            $name->addAttribute('langid', $langid);
                             if (strlen(trim($text)) == 0) {
                                 $offer->addChild('description_'.$langname); //Empty description if doesnt' exists
                             } else {
@@ -307,6 +308,7 @@ class YGenerator
                                 $description_name = 'description_' . $langname;
                                 $offer->$description_name = NULL;
                                 $offer->$description_name->addCData($text);
+                                $offer->$description_name->addAttribute('langid', $langid);
                                 //$offer->addChild('description', $text);
                             }
                         }
@@ -317,7 +319,7 @@ class YGenerator
                             $param = $offer->addChild('param', $valueAttribute);
                             $param->addAttribute('name', $listAttributes[$i]['nameAttribute']);
                             $param->addAttribute('id', $listAttributes[$i]['attribute_id']);
-                            $param->addAttribute('language_id', $listAttributes[$i]['language_id']);
+                            $param->addAttribute('langid', $listAttributes[$i]['language_id']);
                         }
                         /*****************************/
                         /* //HERE SHOULD STOP A MACRO */
@@ -353,7 +355,8 @@ class YGenerator
                         foreach ($descriptions as $description) {
                             extract($description);
                             $langname = $this->languages[$langid]['code'];
-                            $offer->addChild('name_' . $langname, $name);
+                            $name = $offer->addChild('name_' . $langname, $name);
+                            $name->addAttribute('langid', $langid);
                             if (strlen(trim($text)) == 0) {
                                 $offer->addChild('description_'.$langname); //Empty description if doesnt' exists
                             } else {
@@ -361,6 +364,7 @@ class YGenerator
                                 $description_name = 'description_' . $langname;
                                 $offer->$description_name = NULL;
                                 $offer->$description_name->addCData($text);
+                                $offer->$description_name->addAttribute('langid', $langid);
                                 //$offer->addChild('description', $text);
                             }
                         }
@@ -371,7 +375,7 @@ class YGenerator
                             $param = $offer->addChild('param', $valueAttribute);
                             $param->addAttribute('name', $listAttributes[$i]['nameAttribute']);
                             $param->addAttribute('id', $listAttributes[$i]['attribute_id']);
-                            $param->addAttribute('language_id', $listAttributes[$i]['language_id']);
+                            $param->addAttribute('langid', $listAttributes[$i]['language_id']);
                         }
                         /*****************************/
                         /* //HERE SHOULD STOP A MACRO */

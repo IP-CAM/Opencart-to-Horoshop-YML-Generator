@@ -140,6 +140,8 @@ class YGenerator
                 $vendorName = $this->getVendorName($con, $manufacturerId);
                 $stock_quantity = $row['quantity'];
                 $price = $row['price'];
+                $article = $row['model'];
+                $vendorCode = $row['sku'];
                 $img = $base_url . '/image/' . $row['image'];
 
                 //Multiple pictures section
@@ -206,34 +208,54 @@ class YGenerator
                         }
 ///END of Variables
                         $alloptions = $this->getAllProductOptions($con, $productId);
+                        $alloptions_sorted = array();
 
-                        $offer = $offers->addChild('offer');
+                        foreach ($alloptions as $key => $item) {
+                        $alloptions_sorted[$item['option_value_id']][$key] = $item;
+                        }
+
+                        ksort($alloptions_sorted, SORT_NUMERIC);
+                        // var_dump($alloptions_sorted); die();                        
+
                         //OPTIONS
                         // var_dump($alloptions); die();
                         //if($alloptions) { $offer->addChild('options', var_export($alloptions, true)); }
                         if($alloptions) {
-                          $options = $offer->addChild('options');
-                          foreach($alloptions as $option_values) {
-                            //$option = $options->addChild('option', $option_values['name']);
-                            $option = $options->addChild('option');
-                            $option->addAttribute('name', $option_values['option_name']);
-                            /*$option->addChild('name', $option_values['name']);
-                            $option->addChild('price', $option_values['price']);
-                            $option->addChild('artikul', $option_values['artikul']);
-                            $option->addChild('barcode', $option_values['barcode']);
-                            $option->addChild('image', $option_values['image']);*/
-                            foreach($option_values as $key=>$value) {
-                               if($value) {
-                                // echo $key . ':' . $value . PHP_EOL;
-                                 $option->addChild(str_replace('1c', 'one_c', $key), htmlspecialchars($value));
-                               }
-                            }
-                            //price, artikul, barcode, image
-                          }
-                        }
+                            foreach($alloptions_sorted as $alloptions) {
+                                $offer = $offers->addChild('offer');
+                                $offer->addAttribute("group_id", $productId);
 
-                        $offer->addAttribute("id", $productId);
+                                $i = 0;    
+                                foreach($alloptions as $option_values) {
+                                        if(!$i) {
+                                            $offer->addAttribute("id", $option_values['artikul']);
+                                            $price = $option_values['price'];
+                                            $article = $option_values['artikul'];
+                                            $vendorCode = $option_values['barcode'];
+                                        }
+                                        $i++;
+                                        $option = $offer->addChild('param', $option_values['name']);
+                                        $option->addAttribute('name', $option_values['option_name']);
+                                        $option->addAttribute('id', $option_values['option_id']);
+                                        $option->addAttribute('value_id', $option_values['option_value_id']);
+                                        $option->addAttribute('type', 'modification');
+                                        $option->addAttribute('language_id', $option_values['language_id']);
+
+
+                                        /*$option->addChild('name', $option_values['name']);
+                                        $option->addChild('price', $option_values['price']);
+                                        $option->addChild('artikul', $option_values['artikul']);
+                                        $option->addChild('barcode', $option_values['barcode']);
+                                        $option->addChild('image', $option_values['image']);*/
+                                        // $option->addChild(str_replace('1c', 'one_c', $key), htmlspecialchars($value));
+
+                                    }                                
+
+                        /* HERE SHOULD START A MACRO */
+                        /*****************************/
                         $offer->addAttribute("available", "true");
+                        $offer->addChild('article', $article);
+                        $offer->addChild('vendorCode', $vendorCode);
                         $offer->addChild('url', $textUrl);
                         $offer->addChild('price', $price);
                         $offer->addChild('currencyId', 'UAH');
@@ -242,8 +264,10 @@ class YGenerator
                             $offer->addChild('picture', $img);
                         }
 
-                        foreach($images as $value) {
-                            $offer->addChild('picture', $value);
+                        if(isset($images)) {
+                            foreach($images as $value) {
+                                $offer->addChild('picture', $value);
+                            }
                         }
  
                         $offer->addChild('vendor', $vendorName);
@@ -274,6 +298,63 @@ class YGenerator
                             $param->addAttribute('id', $listAttributes[$i]['attribute_id']);
                             $param->addAttribute('language_id', $listAttributes[$i]['language_id']);
                         }
+                        /*****************************/
+                        /* //HERE SHOULD STOP A MACRO */
+
+                            }
+                        } else {
+                            $offer->addAttribute("id", $productId);
+                        /* HERE SHOULD START A MACRO */
+                        /*****************************/
+                        $offer->addAttribute("available", "true");
+                        $offer->addChild('article', $article);
+                        $offer->addChild('vendorCode', $vendorCode);
+                        $offer->addChild('url', $textUrl);
+                        $offer->addChild('price', $price);
+                        $offer->addChild('currencyId', 'UAH');
+                        $offer->addChild('categoryId', $category);
+                        if($img) {
+                            $offer->addChild('picture', $img);
+                        }
+
+                        if(isset($images)) {
+                            foreach($images as $value) {
+                                $offer->addChild('picture', $value);
+                            }
+                        }
+ 
+                        $offer->addChild('vendor', $vendorName);
+                        $offer->addChild('stock_quantity', $stock_quantity);
+                        //$offer->addChild('store', "false");
+                        //$offer->addChild('pickup', "false");
+                        //$offer->addChild('delivery', "false")
+                        foreach ($descriptions as $description) {
+                            extract($description);
+                            $langname = $this->languages[$langid]['code'];
+                            $offer->addChild('name_' . $langname, $name);
+                            if (strlen(trim($text)) == 0) {
+                                $offer->addChild('description_'.$langname); //Empty description if doesnt' exists
+                            } else {
+                                //$offer->addChild('description');
+                                $description_name = 'description_' . $langname;
+                                $offer->$description_name = NULL;
+                                $offer->$description_name->addCData($text);
+                                //$offer->addChild('description', $text);
+                            }
+                        }
+                        ### Adding attributes
+                        for ($i = 0; $i < count($listAttributes); $i++) {
+                            $valueAttribute = trim($listAttributes[$i]['valueAttribute']);
+                            $valueAttribute = $this->cutExtraCharacters($valueAttribute);
+                            $param = $offer->addChild('param', $valueAttribute);
+                            $param->addAttribute('name', $listAttributes[$i]['nameAttribute']);
+                            $param->addAttribute('id', $listAttributes[$i]['attribute_id']);
+                            $param->addAttribute('language_id', $listAttributes[$i]['language_id']);
+                        }
+                        /*****************************/
+                        /* //HERE SHOULD STOP A MACRO */
+                        }
+
                    /////// }
                 //}
             }

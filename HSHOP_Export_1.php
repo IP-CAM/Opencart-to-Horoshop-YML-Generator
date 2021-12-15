@@ -135,9 +135,7 @@ class YGenerator
                         $language = $category->addChild("language");
                         $language->addAttribute("id", $row['language_id']);
                         $language->addChild("name", htmlspecialchars($row['name']));
-                        $language->addChild("seo_description");
-                        $language->seo_description = NULL;
-                        $language->seo_description->addCData($row['description']);
+                        $language->addChildWithCDATA('seo_description', $row['description']);
                         $language->addChild("meta_title", htmlspecialchars($row['meta_title']));
                         $language->addChild("meta_keyword", htmlspecialchars($row['meta_keyword']));
                         $language->addChild("meta_description", htmlspecialchars($row['meta_description']));
@@ -304,17 +302,15 @@ class YGenerator
                                 unset($description['name']);
 
                             $langname = $this->languages[$langid]['code'];
-                            $name = $offer->addChild('name_' . $langname, $name);
+                            // $name = $offer->addChild('name_' . $langname, $name);
+                            $name = $offer->addChild('name', $name);
                             $name->addAttribute('langid', $langid);
                             if (strlen(trim($text)) == 0) {
                                 $offer->addChild('description_'.$langname); //Empty description if doesnt' exists
                             } else {
-                                //$offer->addChild('description');
-                                $description_name = 'description_' . $langname;
-                                $offer->$description_name = NULL;
-                                $offer->$description_name->addCData($text);
-                                $offer->$description_name->addAttribute('langid', $langid);
                                 //$offer->addChild('description', $text);
+                                $o_description = $offer->addChildWithCDATA('description', $text);
+                                $o_description->addAttribute('langid', $langid);
                             }
                         }
                         ### Adding attributes
@@ -368,17 +364,15 @@ class YGenerator
                                 unset($description['name']);
 
                             $langname = $this->languages[$langid]['code'];
-                            $name = $offer->addChild('name_' . $langname, $name);
+                            // $name = $offer->addChild('name_' . $langname, $name);
+                            $name = $offer->addChild('name', $name);
                             $name->addAttribute('langid', $langid);
                             if (strlen(trim($text)) == 0) {
                                 $offer->addChild('description_'.$langname); //Empty description if doesnt' exists
                             } else {
-                                //$offer->addChild('description');
-                                $description_name = 'description_' . $langname;
-                                $offer->$description_name = NULL;
-                                $offer->$description_name->addCData($text);
-                                $offer->$description_name->addAttribute('langid', $langid);
                                 //$offer->addChild('description', $text);
+                                $o_description = $offer->addChildWithCDATA('description', $text);
+                                $o_description->addAttribute('langid', $langid);
                             }
                         }
                         ### Adding attributes
@@ -590,6 +584,23 @@ class SimpleXMLExtended extends SimpleXMLElement {
     $node = dom_import_simplexml($this); 
     $no   = $node->ownerDocument; 
     $node->appendChild($no->createCDATASection($cdata_text)); 
+  }
+  
+   /**
+   * Adds a child with $value inside CDATA
+   * @param unknown $name
+   * @param unknown $value
+   */
+  public function addChildWithCDATA($name, $value = NULL) {
+    $new_child = $this->addChild($name);
+
+    if ($new_child !== NULL) {
+      $node = dom_import_simplexml($new_child);
+      $no   = $node->ownerDocument;
+      $node->appendChild($no->createCDATASection($value));
+    }
+
+    return $new_child;
   } 
 }
 

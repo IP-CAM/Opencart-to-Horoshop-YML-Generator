@@ -142,7 +142,7 @@ class YGenerator
                         $language = $category->addChild("language");
                         $language->addAttribute("id", $row['language_id']);
                         $language->addChild("name", htmlspecialchars($row['name']));
-                        $language->addChildWithCDATA('seo_description', $row['description']);
+                        $language->addChildWithCDATA('seo_description', html_entity_decode($row['description']));
                         $language->addChild("meta_title", htmlspecialchars($row['meta_title']));
                         $language->addChild("meta_keyword", htmlspecialchars($row['meta_keyword']));
                         $language->addChild("meta_description", htmlspecialchars($row['meta_description']));

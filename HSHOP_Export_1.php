@@ -11,6 +11,7 @@ if(php_sapi_name() == 'cli') {
         "x_lang:",
         "x_pretty:",
         "x_baseurl:",
+        "x_product_id:",
         "x_ocver:",
     ));
     $XML_KEY=true;
@@ -40,6 +41,8 @@ class YGenerator
     private $x_limit = 10; //Ограничение в количестве товаров (для отладки, чтоб быстрее работало)
     public $x_pretty = 1; //Красивое форматирование XML - Человекочитабельный формат или в одну строку
     public $x_ocver = 3; //Версия опенкарт 2 или 3
+    public $x_product_description_custom = 0; //Выводить ли кастомные поля из oc_product_description автоматом ?
+    private $x_product_id; //id конкретного товара (для дебага). TODO: Перечисление через запятую товаров, если нужны конкретные id шники
 
     public function __construct($arguments) {
         //?? is php7+ dependend function. May fail on ancient php5.x installations
@@ -48,7 +51,6 @@ class YGenerator
         foreach($arguments as $key=>$value) {
             $this->$key = (int)$value;
         }
-
             //ОПЦИИ
     
     //Выводить снятые с публикации
@@ -154,6 +156,7 @@ class YGenerator
         $offers = $shop->addChild('offers');
         //$sql = "SELECT * FROM  `oc_product` WHERE `quantity` > 0";
         $sql = "SELECT * FROM  `oc_product`";
+        if($this->x_product_id) { $sql .= " WHERE product_id = $this->x_product_id"; }
         if($this->x_limit) { $sql .= " LIMIT $this->x_limit"; }
         $result = $con->query($sql);
         if ($result->num_rows > 0) {

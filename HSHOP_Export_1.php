@@ -282,7 +282,7 @@ class YGenerator
                         $offer->addAttribute("available", "true");
                         $offer->addChild('article', $article);
                         $offer->addChild('vendorCode', $vendorCode);
-                        $offer->addChild('url', $textUrl);
+                        $offer->addChild('alias', $textUrl);
                         $offer->addChild('price', $price);
                         $offer->addChild('currencyId', 'UAH');
                         $offer->addChild('categoryId', $category);
@@ -360,7 +360,7 @@ class YGenerator
                         $offer->addAttribute("available", "true");
                         $offer->addChild('article', $article);
                         $offer->addChild('vendorCode', $vendorCode);
-                        $offer->addChild('url', $textUrl);
+                        $offer->addChild('alias', $textUrl);
                         $offer->addChild('price', $price);
                         $offer->addChild('currencyId', 'UAH');
                         $offer->addChild('categoryId', $category);

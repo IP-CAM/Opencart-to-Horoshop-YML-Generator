@@ -34,7 +34,7 @@ class YGenerator
 
     private $languages = array(); //Массив языков, которые используются на сайте;
     private $active_languages;  //Список активных языков
-    public  $base_url;
+    public  $base_url;          //URL сайта, базовый для ссылок и картинок
 
     private $x_lang = 0;  //Язык по умолчанчию (0, чтобы проигнорировать)
     private $x_limit = 10; //Ограничение в количестве товаров (для отладки, чтоб быстрее работало)
@@ -127,8 +127,8 @@ class YGenerator
                     $category->addAttribute("id", $row2['category_id']);
                     $category->addChild("sort_order", $row2['sort_order']);
                     $category->addChild("top", $row2['top']);
-                    $category->addChild("image", $row2['image']);
-                    $category->addChild("url", $this->base_url . '/index.php?route=product/category&amp;category_id=' . $row2['category_id']);
+                    $category->addChild("image", $this->base_url . $row2['image']);
+                    // $category->addChild("url", $this->base_url . '/index.php?route=product/category&amp;category_id=' . $row2['category_id']);
                     $category->addChild("url", '' . $this->get_oc_url_alias($con, 'category', $row2['category_id'], $this->x_ocver));
                     
                     $parentId = $this->getParentIdCategory($con, $row2['category_id']);

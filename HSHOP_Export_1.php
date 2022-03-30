@@ -11,6 +11,7 @@ if(php_sapi_name() == 'cli') {
         "x_lang:",
         "x_pretty:",
         "x_baseurl:",
+        "x_product_description_custom:",
         "x_product_id:",
         "x_ocver:",
     ));
@@ -309,16 +310,30 @@ class YGenerator
                                 $name = $description['name'];
                                 unset($description['name']);
 
-                            $langname = $this->languages[$langid]['code'];
-                            // $name = $offer->addChild('name_' . $langname, $name);
-                            $name = $offer->addChild('name', $name);
-                            $name->addAttribute('langid', $langid);
-                            if (strlen(trim($text)) == 0) {
-                                $offer->addChild('description_'.$langname); //Empty description if doesnt' exists
-                            } else {
-                                //$offer->addChild('description', $text);
-                                $o_description = $offer->addChildWithCDATA('description', $text);
-                                $o_description->addAttribute('langid', $langid);
+                            $o_name = $offer->addChild('name', $name);
+                            $o_name->addAttribute('langid', $langid);
+                            $o_description = $offer->addChildWithCDATA('description', $text);
+                            $o_description->addAttribute('langid', $langid);
+
+                            $temp = $offer->addChild("meta_title", $description['meta_title']);
+                            $temp->addAttribute('langid', $langid);
+                            unset($description['meta_title']);
+                            $temp = $offer->addChild("meta_keyword", $description['meta_keyword']);
+                            $temp->addAttribute('langid', $langid);
+                            unset($description['meta_keyword']);
+                            $temp = $offer->addChildWithCDATA("meta_description", $description['meta_description']);
+                            $temp->addAttribute('langid', $langid);
+                            unset($description['meta_description']);
+                            $temp = $offer->addChild("h1", $description['meta_h1']);
+                            $temp->addAttribute('langid', $langid);
+                            unset($description['meta_h1']);
+
+                            if($this->x_product_description_custom) {
+                                foreach($description as $key=>$value) {
+                                    $temp = $offer->addChildWithCDATA($key, $value);
+                                    $temp->addAttribute('langid', $langid);
+                                    $temp->addAttribute('type', 'custom');
+                                }
                             }
                         }
                         ### Adding attributes
@@ -371,16 +386,30 @@ class YGenerator
                                 $name = $description['name'];
                                 unset($description['name']);
 
-                            $langname = $this->languages[$langid]['code'];
-                            // $name = $offer->addChild('name_' . $langname, $name);
-                            $name = $offer->addChild('name', $name);
-                            $name->addAttribute('langid', $langid);
-                            if (strlen(trim($text)) == 0) {
-                                $offer->addChild('description_'.$langname); //Empty description if doesnt' exists
-                            } else {
-                                //$offer->addChild('description', $text);
-                                $o_description = $offer->addChildWithCDATA('description', $text);
-                                $o_description->addAttribute('langid', $langid);
+                            $o_name = $offer->addChild('name', $name);
+                            $o_name->addAttribute('langid', $langid);
+                            $o_description = $offer->addChildWithCDATA('description', $text);
+                            $o_description->addAttribute('langid', $langid);
+
+                            $temp = $offer->addChild("meta_title", $description['meta_title']);
+                            $temp->addAttribute('langid', $langid);
+                            unset($description['meta_title']);
+                            $temp = $offer->addChild("meta_keyword", $description['meta_keyword']);
+                            $temp->addAttribute('langid', $langid);
+                            unset($description['meta_keyword']);
+                            $temp = $offer->addChildWithCDATA("meta_description", $description['meta_description']);
+                            $temp->addAttribute('langid', $langid);
+                            unset($description['meta_description']);
+                            $temp = $offer->addChild("h1", $description['meta_h1']);
+                            $temp->addAttribute('langid', $langid);
+                            unset($description['meta_h1']);
+
+                            if($this->x_product_description_custom) {
+                                foreach($description as $key=>$value) {
+                                    $temp = $offer->addChildWithCDATA($key, $value);
+                                    $temp->addAttribute('langid', $langid);
+                                    $temp->addAttribute('type', 'custom');
+                                }
                             }
                         }
                         ### Adding attributes

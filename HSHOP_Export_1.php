@@ -11,6 +11,7 @@ if(php_sapi_name() == 'cli') {
         "x_lang:",
         "x_pretty:",
         "x_baseurl:",
+        "x_ocver:",
     ));
     $XML_KEY=true;
     $base_url = 'https://horoshop.ua';
@@ -38,6 +39,7 @@ class YGenerator
     private $x_lang = 0;  //Язык по умолчанчию (0, чтобы проигнорировать)
     private $x_limit = 10; //Ограничение в количестве товаров (для отладки, чтоб быстрее работало)
     public $x_pretty = 1; //Красивое форматирование XML - Человекочитабельный формат или в одну строку
+    public $x_ocver = 3; //Версия опенкарт 2 или 3
 
     public function __construct($arguments) {
         //?? is php7+ dependend function. May fail on ancient php5.x installations
@@ -127,6 +129,8 @@ class YGenerator
                     $category->addChild("top", $row2['top']);
                     $category->addChild("image", $row2['image']);
                     $category->addChild("url", $this->base_url . '/index.php?route=product/category&amp;category_id=' . $row2['category_id']);
+                    $category->addChild("url", '' . $this->get_oc_url_alias($con, 'category', $row2['category_id'], $this->x_ocver));
+                    
                     $parentId = $this->getParentIdCategory($con, $row2['category_id']);
                     if ($parentId != 0) {
                         $category->addAttribute("parentId", $parentId);
@@ -194,7 +198,8 @@ class YGenerator
                     //checking, how many attributes in product && if exist image of products
                     //don't adding the product if min attributes
 //////                    if (count($listAttributes) > 4 && strlen($row['image']) > 4) {
-                        $textUrl = $this->base_url . '/index.php?route=product/product&amp;product_id=' . $productId;
+                        // $textUrl = $this->base_url . '/index.php?route=product/product&amp;product_id=' . $productId;
+                        $textUrl = '' . $this->get_oc_url_alias($con, 'product', $productId, $this->x_ocver);
                         $category = $this->getCategoryOfProduct($con, $productId);
 
                         $descriptions = array();
@@ -575,6 +580,32 @@ class YGenerator
                 }
                 $result = $con->query($sql);
                 return $result->fetch_all(MYSQLI_ASSOC);
+        }
+        private function get_oc_url_alias($con, $type, $id, $ocver = 3, $lang = 0) {
+            if($ocver == 3) {
+                $query = $type . '_id=' . $id;
+                $sql = "SELECT * FROM oc_seo_url WHERE query='$query'";
+                $result = $con->query($sql);
+                $keyword = '';
+                if ($result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                        $keyword = $row['keyword'];
+                    }
+                }
+            } else if($ocver == 2) {
+                $query = $type . '_id=' . $id;
+                $sql = "SELECT * FROM oc_url_alias WHERE query='$query'";
+                $result = $con->query($sql);
+                $keyword = '';
+                if ($result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                        $keyword = $row['keyword'];
+                    }
+                }
+             } else {
+                $keyword = 'nope';
+            }
+        return $keyword;
         }
 }
 

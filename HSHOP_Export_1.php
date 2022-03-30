@@ -174,6 +174,7 @@ class YGenerator
                 //Multiple pictures section
                 $sql3 = "SELECT * FROM `oc_product_image` WHERE `product_id` = '$productId' ORDER BY sort_order ASC";
                 $result3 = $con->query($sql3);
+                $images=array();
                 if ($result3->num_rows > 0) {
                     while ($row3 = $result3->fetch_assoc()) {
                     $images[] = $this->base_url . '/image/' . $row3['image'];
@@ -303,6 +304,8 @@ class YGenerator
                         foreach ($descriptions as $description) {
                             //extract($description);
 
+                                unset($description['product_id']);
+
                                 $text = $description['description'];
                                 unset($description['description']);
                                 $langid = $description['language_id'];
@@ -378,6 +381,8 @@ class YGenerator
                         //$offer->addChild('delivery', "false")
                         foreach ($descriptions as $description) {
                             // extract($description);
+
+                                unset($description['product_id']);
 
                                 $text = $description['description'];
                                 unset($description['description']);

@@ -9,6 +9,7 @@ if(php_sapi_name() == 'cli') {
     $arguments = getopt("",array(
         "x_limit:",
         "x_cat_limit:",
+        "x_simplecat:",
         "x_lang:",
         "x_pretty:",
         "x_baseurl:",
@@ -40,6 +41,7 @@ if(php_sapi_name() == 'cli') {
 <form action="">
     <label for="x_limit">Number of products (0 - all):</label><input type="number" name="x_limit" value=3><br>
     <label for="x_cat_limit">Number of categories (0 - all):</label><input type="number" name="x_cat_limit" value=3><br>
+    <label for="x_simplecat">Show categories in simplified format (YML One-line standart)</label><input type="checkbox" name="x_simplecat" value="1"><br>
     <label for="x_lang">Printout only one language No (Or 0 for all enabled):</label><input type="number" name="x_lang" value=0><br>
     <input type="hidden" name="x_pretty" value="0" /><label for="x_pretty">Pretty output (or one-line XML)</label><input type="checkbox" name="x_pretty" value="1" checked><br>
     <label for="x_product_description_custom">Show CUSTOM product_description fields - multilingual (Created by any custom module)</label><input type="checkbox" name="x_product_description_custom" value="1"><br>
@@ -68,6 +70,7 @@ class YGenerator
     private $x_lang = 0;  //Язык по умолчанчию (0, чтобы проигнорировать)
     private $x_limit = 10; //Ограничение в количестве товаров (для отладки, чтоб быстрее работало)
     private $x_cat_limit = 0; //Ограничение в количестве категорий (для отладки, чтоб быстрее работало)
+    private $x_simplecat = 0; //Выводить категории в упрощеном виде в одну строку (стандартный YML формат)
     public $x_pretty = 1; //Красивое форматирование XML - Человекочитабельный формат или в одну строку
     public $x_ocver = 3; //Версия опенкарт 2 или 3
     public $x_product_description_custom = 0; //Выводить ли кастомные поля из oc_product_description автоматом (мультиязычные)?
@@ -156,18 +159,29 @@ class YGenerator
                 else { $sql .= ' AND language_id IN(' . implode(',',$this->active_languages) . ')'; }
                 $result = $con->query($sql);
                 if ($result->num_rows > 0) {
+                    if ($this->x_simplecat) {
+                    while ($row = $result->fetch_assoc()) {
+                        $category = $categories->addChild('category', htmlspecialchars($row['name'])); //echo $row['name'] . PHP_EOL;
+                        $category->addAttribute("id", $row2['category_id']);
+                        $category->addAttribute("langid", $row['language_id']);
+                        $parentId = $this->getParentIdCategory($con, $row2['category_id']);
+                        if ($parentId != 0) {
+                            $category->addAttribute("parentId", $parentId);
+                        }
+                    }
+                    } else {
                     $category = $categories->addChild('category'); //echo $row['name'] . PHP_EOL;
                     $category->addAttribute("id", $row2['category_id']);
+                    $parentId = $this->getParentIdCategory($con, $row2['category_id']);
+                    if ($parentId != 0) {
+                        $category->addAttribute("parentId", $parentId);
+                    }
                     $category->addChild("sort_order", $row2['sort_order']);
                     $category->addChild("top", $row2['top']);
                     $category->addChild("image", $this->base_url . $row2['image']);
                     // $category->addChild("url", $this->base_url . '/index.php?route=product/category&amp;category_id=' . $row2['category_id']);
                     $category->addChild("url", '' . $this->get_oc_url_alias($con, 'category', $row2['category_id'], $this->x_ocver));
                     
-                    $parentId = $this->getParentIdCategory($con, $row2['category_id']);
-                    if ($parentId != 0) {
-                        $category->addAttribute("parentId", $parentId);
-                    }
                     while ($row = $result->fetch_assoc()) {
                         $language = $category->addChild("language");
                         $language->addAttribute("id", $row['language_id']);
@@ -178,6 +192,7 @@ class YGenerator
                         $language->addChild("meta_description", htmlspecialchars($row['meta_description']));
                         $language->addChild("h1", htmlspecialchars($row['h1']));
                     }
+                    } //fullcat (!simplecat)
                 }
             }
         }

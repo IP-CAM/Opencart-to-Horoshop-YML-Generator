@@ -8,6 +8,7 @@ require_once __DIR__ . '/config.php';
 if(php_sapi_name() == 'cli') {
     $arguments = getopt("",array(
         "x_limit:",
+        "x_cat_limit:",
         "x_lang:",
         "x_pretty:",
         "x_baseurl:",
@@ -40,6 +41,7 @@ class YGenerator
 
     private $x_lang = 0;  //Язык по умолчанчию (0, чтобы проигнорировать)
     private $x_limit = 10; //Ограничение в количестве товаров (для отладки, чтоб быстрее работало)
+    private $x_cat_limit = 0; //Ограничение в количестве категорий (для отладки, чтоб быстрее работало)
     public $x_pretty = 1; //Красивое форматирование XML - Человекочитабельный формат или в одну строку
     public $x_ocver = 3; //Версия опенкарт 2 или 3
     public $x_product_description_custom = 0; //Выводить ли кастомные поля из oc_product_description автоматом ?
@@ -118,6 +120,7 @@ class YGenerator
         $sql = "SELECT * FROM `oc_category` WHERE 1";
         $sql .= ' AND status = 1';
         $sql .= ' ORDER BY `category_id`';
+        if($this->x_cat_limit) { $sql .= " LIMIT $this->x_cat_limit"; }
 
         $result2 = $con->query($sql);
         if ($result2->num_rows > 0) {

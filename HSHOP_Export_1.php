@@ -41,6 +41,7 @@ if(php_sapi_name() == 'cli') {
     <label for="x_limit">Number of products (0 - all):</label><input type="number" name="x_limit" value=3><br>
     <label for="x_cat_limit">Number of categories (0 - all):</label><input type="number" name="x_cat_limit" value=3><br>
     <label for="x_pretty">Pretty output (or one-line XML)</label><input type="checkbox" name="x_pretty" checked><br>
+    <label for="x_product_description_custom">Show CUSTOM product fields (Created by any custom module)</label><input type="checkbox" name="x_product_description_custom"><br>
     <label for="x_product_id">Specific Product ID (for debug only):</label><input type="number" name="x_product_id" value=0><br>
     <label for="x_ocver">Opencart version:</label><select name="x_ocver"><option value="2">2</option><option value="3" selected>3</option></select><br>
 <input type="submit" name="XML_KEY">

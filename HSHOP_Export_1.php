@@ -40,6 +40,7 @@ if(php_sapi_name() == 'cli') {
 <form action="">
     <label for="x_limit">Number of products (0 - all):</label><input type="number" name="x_limit" value=3><br>
     <label for="x_cat_limit">Number of categories (0 - all):</label><input type="number" name="x_cat_limit" value=3><br>
+    <label for="x_lang">Printout only one language No (Or 0 for all enabled):</label><input type="number" name="x_lang" value=0><br>
     <label for="x_pretty">Pretty output (or one-line XML)</label><input type="checkbox" name="x_pretty" checked><br>
     <label for="x_product_description_custom">Show CUSTOM product fields (Created by any custom module)</label><input type="checkbox" name="x_product_description_custom"><br>
     <label for="x_product_id">Specific Product ID (for debug only):</label><input type="number" name="x_product_id" value=0><br>
@@ -151,7 +152,8 @@ class YGenerator
         if ($result2->num_rows > 0) {
             while ($row2 = $result2->fetch_assoc()) {
                 $sql = "SELECT * FROM `oc_category_description` WHERE category_id = '" . $row2['category_id'] . "'";
-                $sql .= ' AND language_id IN(' . implode(',',$this->active_languages) . ')';
+                if($this->x_lang) { $sql .= " AND language_id = $this->x_lang"; }
+                else { $sql .= ' AND language_id IN(' . implode(',',$this->active_languages) . ')'; }
                 $result = $con->query($sql);
                 if ($result->num_rows > 0) {
                     $category = $categories->addChild('category'); //echo $row['name'] . PHP_EOL;
@@ -213,6 +215,8 @@ class YGenerator
                 $listAttributes = array();
                 $sql3 = "SELECT * FROM `oc_product_attribute` WHERE `product_id` = '$productId'";
                 if($this->x_lang) { $sql3 .= " AND language_id = $this->x_lang"; }
+                else { $sql3 .= ' AND language_id IN(' . implode(',',$this->active_languages) . ')'; }
+
                 $result3 = $con->query($sql3);
 //                if ($result3->num_rows > 0) { //Не выгружать без атрибутов
                     while ($row3 = $result3->fetch_assoc()) {
@@ -238,6 +242,7 @@ class YGenerator
                         $descriptions = array();
                         $sql2 = "SELECT * FROM `oc_product_description` WHERE `product_id` = '$productId'";
                         if($this->x_lang) { $sql2 .= " AND language_id = $this->x_lang"; }
+                        else { $sql2 .= ' AND language_id IN(' . implode(',',$this->active_languages) . ')'; }
                         $result2 = $con->query($sql2);
                         if ($result2->num_rows > 0) {
                             while ($row2 = $result2->fetch_assoc()) {

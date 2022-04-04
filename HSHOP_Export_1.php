@@ -26,6 +26,30 @@ if(php_sapi_name() == 'cli') {
         isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
         $_SERVER['SERVER_NAME']
     );
+    if(isset($_GET[web_admin])) {
+?>
+<html>
+<head>
+</head>
+<body>
+    <h1>Налаштування:</h1>
+<!--     private $x_limit = 10; //Ограничение в количестве товаров (для отладки, чтоб быстрее работало) 0 - без лимита
+     public $x_pretty = 1; //Красивое форматирование XML - Человекочитабельный формат или в одну строку (в одну строку быстрее грузится)
+     public $x_ocver = 3; //Версия опенкарт 2 или 3
+     private $x_product_id; //id конкретного одного товара (для дебага).-->
+<form action="">
+    <label for="x_limit">Number of products (0 - all):</label><input type="number" name="x_limit" value=3><br>
+    <label for="x_cat_limit">Number of categories (0 - all):</label><input type="number" name="x_cat_limit" value=3><br>
+    <label for="x_pretty">Pretty output (or one-line XML)</label><input type="checkbox" name="x_pretty" checked><br>
+    <label for="x_product_id">Specific Product ID (for debug only):</label><input type="number" name="x_product_id" value=0><br>
+    <label for="x_ocver">Opencart version:</label><select name="x_ocver"><option value="2">2</option><option value="3" selected>3</option></select><br>
+<input type="submit" name="XML_KEY">
+</form>
+</body>
+</html>
+<?php
+    exit;
+    }
 }
 
 /**

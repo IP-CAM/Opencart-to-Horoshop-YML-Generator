@@ -41,8 +41,8 @@ if(php_sapi_name() == 'cli') {
     <label for="x_limit">Number of products (0 - all):</label><input type="number" name="x_limit" value=3><br>
     <label for="x_cat_limit">Number of categories (0 - all):</label><input type="number" name="x_cat_limit" value=3><br>
     <label for="x_lang">Printout only one language No (Or 0 for all enabled):</label><input type="number" name="x_lang" value=0><br>
-    <label for="x_pretty">Pretty output (or one-line XML)</label><input type="checkbox" name="x_pretty" checked><br>
-    <label for="x_product_description_custom">Show CUSTOM product fields (Created by any custom module)</label><input type="checkbox" name="x_product_description_custom"><br>
+    <input type="hidden" name="x_pretty" value="0" /><label for="x_pretty">Pretty output (or one-line XML)</label><input type="checkbox" name="x_pretty" value="1" checked><br>
+    <label for="x_product_description_custom">Show CUSTOM product_description fields - multilingual (Created by any custom module)</label><input type="checkbox" name="x_product_description_custom" value="1"><br>
     <label for="x_product_id">Specific Product ID (for debug only):</label><input type="number" name="x_product_id" value=0><br>
     <label for="x_ocver">Opencart version:</label><select name="x_ocver"><option value="2">2</option><option value="3" selected>3</option></select><br>
 <input type="submit" name="XML_KEY">
@@ -70,7 +70,7 @@ class YGenerator
     private $x_cat_limit = 0; //Ограничение в количестве категорий (для отладки, чтоб быстрее работало)
     public $x_pretty = 1; //Красивое форматирование XML - Человекочитабельный формат или в одну строку
     public $x_ocver = 3; //Версия опенкарт 2 или 3
-    public $x_product_description_custom = 0; //Выводить ли кастомные поля из oc_product_description автоматом ?
+    public $x_product_description_custom = 0; //Выводить ли кастомные поля из oc_product_description автоматом (мультиязычные)?
     private $x_product_id; //id конкретного товара (для дебага). TODO: Перечисление через запятую товаров, если нужны конкретные id шники
 
     public function __construct($arguments) {

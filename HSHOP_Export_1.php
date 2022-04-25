@@ -289,7 +289,7 @@ class YGenerator
                         }
 
                         ksort($alloptions_sorted, SORT_NUMERIC);
-                        // var_dump($alloptions_sorted); die();                        
+                        // var_dump($alloptions_sorted); die();
 
                         //OPTIONS
                         // var_dump($alloptions); die();
@@ -299,7 +299,7 @@ class YGenerator
                                 $offer = $offers->addChild('offer');
                                 $offer->addAttribute("group_id", $productId);
 
-                                $i = 0;    
+                                $i = 0;
                                 foreach($alloptions as $option_values) {
                                         if(!$i) {
                                             $offer->addAttribute("id", $option_values['artikul']);
@@ -490,6 +490,7 @@ class YGenerator
      * @return mixed
      */
     private function cutExtraCharacters($str){
+    //unused function. Returns the same as input. May be useful in future for attributes.
         $cyr = [
             ' кг', ' л', ' Вт', ' куб. м/ч', ' см', ' дБ'
         ];
@@ -697,11 +698,11 @@ class YGenerator
 // http://coffeerings.posterous.com/php-simplexml-and-cdata
 class SimpleXMLExtended extends SimpleXMLElement {
   public function addCData($cdata_text) {
-    $node = dom_import_simplexml($this); 
-    $no   = $node->ownerDocument; 
-    $node->appendChild($no->createCDATASection($cdata_text)); 
+    $node = dom_import_simplexml($this);
+    $no   = $node->ownerDocument;
+    $node->appendChild($no->createCDATASection($cdata_text));
   }
-  
+
    /**
    * Adds a child with $value inside CDATA
    * @param unknown $name
@@ -717,7 +718,7 @@ class SimpleXMLExtended extends SimpleXMLElement {
     }
 
     return $new_child;
-  } 
+  }
 }
 
 if($XML_KEY) {

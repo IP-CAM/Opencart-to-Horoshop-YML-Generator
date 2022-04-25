@@ -212,8 +212,8 @@ class YGenerator
                 $vendorName = $this->getVendorName($con, $manufacturerId);
                 $stock_quantity = $row['quantity'];
                 $price = $row['price'];
-                $article = $row['model'];
-                $vendorCode = $row['sku'];
+                $article = trim($row['model']);
+                $vendorCode = trim($row['sku']);
                 $img = $this->base_url . '/image/' . $row['image'];
 
                 //Multiple pictures section

@@ -1,17 +1,50 @@
-# YML Generator
-<b>Creates YML list of products from Opencart 2.3 store.</b>
+# HOROSHOP XML Generator
+<b>Скрипт для вивантаження даних з сайтів на Опенкарт в універсальному XML форматі HOROSHOP</b>
 <br><br>
-Basic options:
+Проблематика
+Стандартний YML файл не розрахований на багатомовність і всі спроби приклеїти другу мову "скотчем та гвіздками" виглядають жалюгідно.
+Тому було розроблено універсаьний XML формат HoroshopXML, який
 <ul>
-<li>Resource are available on constant link</li>
-<li>The list includes only products with photos</li>
-<li>The list includes only products with above 4 properties</li>
-<li>The properties are sorted by index (coming from 1C)</li>
-<li>In descriptions of product cutting all html tags</li>
+<li>Гарно підтримує багатомовність (з коробки)</li>
+<li>Підтримує бідь-які мови (а не тільки російську і українську)</li>
+<li>Не обмежений в кількості мов (можна вивантажувати 3х та більше мовні сайти</li>
+<li>Підтримає не тільки базові дані категорій а і розширені, зокрема meta теги title, description та seoURL</li>
+<li>Підтримує не тільки базові дані товарів а і розширені, зокрема meta теги title, description всі види артикулів, тощо</li>
+<li>Оптимальний для переносу товарів з сайтів на Opencart до платформи Horoshop</li>
+<li>ii</li>
+
+Особливості скритпу:
+<ul>
+<li>Підтримує Opencart 2.x, 3 і можливо 1.5 (не тестувався)</li>
+<li>Вивантажує не тільки базові дані категорій а і розширені, зокрема meta теги title, description та seoURL</li>
+<li>Вивантажує не тільки базові дані товарів а і розширені, зокрема meta теги title, description всі види артикулів, тощо</li>
+<li>Не потребує встановлення чи зміни файлів системи</li>
 </ul>
+<br><br>
+<b>Використання:</b>
+Скрипт потрібно розмістити в корені сайту Opencart. Налаштування підключення до бази даних підхопиться автоматично.
+Далі йде звертання до скрипту за адресою: https://sitename.com.ua/HSHOP_Export_1.php
+Увага! В цілях безпеки звертання до скрипту без додаткових параметрів заборонено. Треба як мінімум параметр XML_KEY
+В базовому скрипті перевірка його значення не відбувається. Лише наявність. Але в Production системі рекомендуємо додати перевірку 
+на конкретне значення, щоб обмежити доступ до ваших товарів не авторизованим користувачам.
+
+Самий простий варіант звернення до скрипта:
+https://site.com.ua/HSHOP_Export_1.php?XML_KEY=
+
+В даному скрипті є деяка кількість параметрів. Вони описані нижче:
+
+
+Для спрощення налаштування, скрипт містить міні веб-адмінку, що доступна за посиланням:
+
+https://site.com.ua/HSHOP_Export_1.php?web_admin&XML_KEY=
+<br><br>
+<b>Запуск з консолі:</b>
+Для сайтів з великою кількістю товарів або на слабкому хостингу вивантажити всі товари за один раз може бути складним або неможливим.
+Якщо збільшення таймаутів в налаштуваннях PHP не допомагає, або неможливе - даний скрипт можна запускати по ssh з тими ж параметрами.
+Приклад використання:
+php HSHOP_Export_1.php --x_limit=1 --x_cat_limit=1 --x_ocver=2 > horoshop_export.xml
 <br><br>
 <b>Example screenshots:</b>
 
-![yml_catalog_1](https://user-images.githubusercontent.com/13946156/37341946-d7a63b06-26cb-11e8-9b49-e2300240aba4.png)
+![horoshop_catalog](https://user-images.githubusercontent.com/315178/165104364-3e7a77c2-ea68-4d10-9060-89351ffa8d08.png)
 <br><b>..........</b><br><br>
-![yml_catalog_2](https://user-images.githubusercontent.com/13946156/37341949-da4da4f2-26cb-11e8-92f5-fefc618ec60b.png)

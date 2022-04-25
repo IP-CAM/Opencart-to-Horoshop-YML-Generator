@@ -264,7 +264,7 @@ class YGenerator
                                 //$text = $this->removeTags($row2['description']);
                                 $data = array();
                                 foreach($row2 as $key=>$value) {
-                                    $data[$key] = htmlspecialchars($value);
+                                    $data[$key] = $value;
                                 }
                                 array_push($descriptions, $data);
                             }
@@ -363,7 +363,7 @@ class YGenerator
 
                             $o_name = $offer->addChild('name', $name);
                             $o_name->addAttribute('langid', $langid);
-                            $o_description = $offer->addChildWithCDATA('description', $text);
+                            $o_description = $offer->addChildWithCDATA('description', html_entity_decode($text));
                             $o_description->addAttribute('langid', $langid);
 
                             $temp = $offer->addChild("meta_title", $description['meta_title']);
@@ -381,7 +381,7 @@ class YGenerator
 
                             if($this->x_product_description_custom) {
                                 foreach($description as $key=>$value) {
-                                    $temp = $offer->addChildWithCDATA($key, $value);
+                                    $temp = $offer->addChildWithCDATA($key, html_entity_decode($value));
                                     $temp->addAttribute('langid', $langid);
                                     $temp->addAttribute('type', 'custom');
                                 }
@@ -441,7 +441,7 @@ class YGenerator
 
                             $o_name = $offer->addChild('name', $name);
                             $o_name->addAttribute('langid', $langid);
-                            $o_description = $offer->addChildWithCDATA('description', $text);
+                            $o_description = $offer->addChildWithCDATA('description', html_entity_decode($text));
                             $o_description->addAttribute('langid', $langid);
 
                             $temp = $offer->addChild("meta_title", $description['meta_title']);
@@ -459,7 +459,7 @@ class YGenerator
 
                             if($this->x_product_description_custom) {
                                 foreach($description as $key=>$value) {
-                                    $temp = $offer->addChildWithCDATA($key, $value);
+                                    $temp = $offer->addChildWithCDATA($key, html_entity_decode($value));
                                     $temp->addAttribute('langid', $langid);
                                     $temp->addAttribute('type', 'custom');
                                 }

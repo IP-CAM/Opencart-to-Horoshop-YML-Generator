@@ -16,6 +16,7 @@ if(php_sapi_name() == 'cli') {
         "x_product_description_custom:",
         "x_product_id:",
         "x_ocver:",
+        "x_multilang_tags:",
     ));
     $XML_KEY=true;
     $base_url = 'https://horoshop.ua';
@@ -47,6 +48,7 @@ if(php_sapi_name() == 'cli') {
     <label for="x_product_description_custom">Show CUSTOM product_description fields - multilingual (Created by any custom module)</label><input type="checkbox" name="x_product_description_custom" value="1"><br>
     <label for="x_product_id">Specific Product ID (for debug only):</label><input type="number" name="x_product_id" value=0><br>
     <label for="x_ocver">Opencart version:</label><select name="x_ocver"><option value="2">2</option><option value="3" selected>3</option></select><br>
+    <label for="x_multilang_tags">Show multilingual tags (name_ru, name_uk, description_ru, description_uk)</label><input type="checkbox" name="x_multilang_tags" value="1"><br>
 <input type="submit" name="XML_KEY">
 </form>
 </body>
@@ -63,7 +65,7 @@ if(php_sapi_name() == 'cli') {
 class YGenerator
 {
 
-    private $languages = array(); //Массив языков, которые используются на сайте;
+    public $languages = array(); //Массив языков, которые используются на сайте;
     private $active_languages;  //Список активных языков
     public  $base_url;          //URL сайта, базовый для ссылок и картинок
 
@@ -73,6 +75,7 @@ class YGenerator
     private $x_simplecat = 0; //Выводить категории в упрощеном виде в одну строку (стандартный YML формат)
     public $x_pretty = 1; //Красивое форматирование XML - Человекочитабельный формат или в одну строку
     public $x_ocver = 3; //Версия опенкарт 2 или 3
+    public $x_multilang_tags = 0; //Вывести все теги как мультиязычные. Например: description_uk, description_ru вместо <description lang=1> 
     public $x_product_description_custom = 0; //Выводить ли кастомные поля из oc_product_description автоматом (мультиязычные)?
     private $x_product_id; //id конкретного товара (для дебага). TODO: Перечисление через запятую товаров, если нужны конкретные id шники
 
@@ -362,11 +365,8 @@ class YGenerator
                                 $name = $description['name'];
                                 unset($description['name']);
 
-                            $o_name = $offer->addChild('name', $name);
-                            $o_name->addAttribute('langid', $langid);
-                            $o_description = $offer->addChildWithCDATA('description', html_entity_decode($text));
-                            $o_description->addAttribute('langid', $langid);
-
+                            $o_name = $offer->addChildWithLangOptions('name', $name, $langid, $this->x_multilang_tags, 0, $this->languages);
+                            $o_description = $offer->addChildWithLangOptions('description', html_entity_decode($text), $langid, $this->x_multilang_tags, 1, $this->languages);
                             $temp = $offer->addChild("meta_title", $description['meta_title']);
                             $temp->addAttribute('langid', $langid);
                             unset($description['meta_title']);
@@ -422,7 +422,7 @@ class YGenerator
                                 $offer->addChild('picture', $value);
                             }
                         }
- 
+
                         $offer->addChild('vendor', $vendorName);
                         $offer->addChild('stock_quantity', $stock_quantity);
                         //$offer->addChild('store', "false");
@@ -440,11 +440,8 @@ class YGenerator
                                 $name = $description['name'];
                                 unset($description['name']);
 
-                            $o_name = $offer->addChild('name', $name);
-                            $o_name->addAttribute('langid', $langid);
-                            $o_description = $offer->addChildWithCDATA('description', html_entity_decode($text));
-                            $o_description->addAttribute('langid', $langid);
-
+                            $o_name = addChildWithLangOptions($offer, 'name', $name, $langid, $this->x_multilang_tags, 0, $this->languages);
+                            $o_description = $offer->addChildWithLangOptions('description', html_entity_decode($text), $langid, $this->x_multilang_tags, 1, $this->languages);
                             $temp = $offer->addChild("meta_title", $description['meta_title']);
                             $temp->addAttribute('langid', $langid);
                             unset($description['meta_title']);
@@ -719,6 +716,27 @@ class SimpleXMLExtended extends SimpleXMLElement {
     }
 
     return $new_child;
+  }
+
+  public function addChildWithLangOptions($name, $value = NULL, $langid, $multilingual_tags = 0, $cdata = 0, $languages) {
+
+      if($multilingual_tags) {
+          $name .= '_' . str_replace(array(' ', '-'), '_', trim($languages[$langid]['code']));
+          if($cdata) {
+              $new_child = $this->addChildWithCDATA($name, $value);
+          } else {
+              $new_child = $this->addChild($name, $value);
+          }
+      } else {
+          if($cdata) {
+              $new_child = $this->addChildWithCDATA($name, $value);
+          } else {
+              $new_child = $this->addChild($name, $value);
+          }
+          $new_child->addAttribute('langid', $langid);
+      }
+
+      return $new_child;
   }
 }
 

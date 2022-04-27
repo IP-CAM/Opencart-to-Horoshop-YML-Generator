@@ -16,6 +16,7 @@ if(php_sapi_name() == 'cli') {
         "x_product_description_custom:",
         "x_product_id:",
         "x_ocver:",
+        "x_tabcontent:",
         "x_multilang_tags:",
     ));
     $XML_KEY=true;
@@ -75,6 +76,7 @@ class YGenerator
     private $x_simplecat = 0; //Выводить категории в упрощеном виде в одну строку (стандартный YML формат)
     public $x_pretty = 1; //Красивое форматирование XML - Человекочитабельный формат или в одну строку
     public $x_ocver = 3; //Версия опенкарт 2 или 3
+    public $x_tabcontent = 0; //Вывести в description данные из вкладок oc_product_TABNAMEtabcontent
     public $x_multilang_tags = 0; //Вывести все теги как мультиязычные. Например: description_uk, description_ru вместо <description lang=1> 
     public $x_product_description_custom = 0; //Выводить ли кастомные поля из oc_product_description автоматом (мультиязычные)?
     private $x_product_id; //id конкретного товара (для дебага). TODO: Перечисление через запятую товаров, если нужны конкретные id шники
@@ -364,7 +366,10 @@ class YGenerator
                                 unset($description['language_id']);
                                 $name = $description['name'];
                                 unset($description['name']);
-
+                                if($this->x_tabcontent) {
+                                    $text .= $this->get_additional_tabcontent($con, 'oc_product_secondtabcontent', 'secondtabcontent', $productId, $langid, true);
+                                    $text .= $this->get_additional_tabcontent($con, 'oc_product_newtabcontent', 'newtabcontent', $productId, $langid, true);
+                                }
                             $o_name = $offer->addChildWithLangOptions('name', $name, $langid, $this->x_multilang_tags, 0, $this->languages);
                             $o_description = $offer->addChildWithLangOptions('description', html_entity_decode($text), $langid, $this->x_multilang_tags, 1, $this->languages);
                             $temp = $offer->addChild("meta_title", $description['meta_title']);
@@ -439,6 +444,10 @@ class YGenerator
                                 unset($description['language_id']);
                                 $name = $description['name'];
                                 unset($description['name']);
+                                if($this->x_tabcontent) {
+                                    $text .= $this->get_additional_tabcontent($con, 'oc_product_secondtabcontent', 'secondtabcontent', $productId, $langid, true);
+                                    $text .= $this->get_additional_tabcontent($con, 'oc_product_newtabcontent', 'newtabcontent', $productId, $langid, true);
+                                }
 
                             $o_name = addChildWithLangOptions($offer, 'name', $name, $langid, $this->x_multilang_tags, 0, $this->languages);
                             $o_description = $offer->addChildWithLangOptions('description', html_entity_decode($text), $langid, $this->x_multilang_tags, 1, $this->languages);
@@ -690,6 +699,21 @@ class YGenerator
                 $keyword = 'nope';
             }
         return $keyword;
+        }
+
+        private function get_additional_tabcontent($con, $tablename, $fieldname, $product_id, $language_id, $show_caption=false) {
+            $sql = "SELECT * FROM `$tablename` WHERE  `product_id` = '$product_id' AND `language_id` = '$language_id'";
+            $result = $con->query($sql);
+            $tabcontent = '';
+            if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    if($show_caption) {
+                        $tabcontent .= '<h2>' . $row['name'] . '</h2>';
+                    }
+                    $tabcontent .= $row[$fieldname];
+                }
+            }
+            return $tabcontent;
         }
 }
 

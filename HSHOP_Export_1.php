@@ -208,6 +208,7 @@ class YGenerator
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
                 $productId = $row['product_id'];
+                $productStatus = $row['status'] ? 'true' : 'false';
                 $manufacturerId = $row['manufacturer_id'];
                 $vendorName = $this->getVendorName($con, $manufacturerId);
                 $stock_quantity = $row['quantity'];
@@ -323,11 +324,11 @@ class YGenerator
                                         $option->addChild('image', $option_values['image']);*/
                                         // $option->addChild(str_replace('1c', 'one_c', $key), htmlspecialchars($value));
 
-                                    }                                
+                                    }
 
                         /* HERE SHOULD START A MACRO */
                         /*****************************/
-                        $offer->addAttribute("available", "true");
+                        $offer->addAttribute("available", $productStatus);
                         $offer->addChild('article', $article);
                         $offer->addChild('vendorCode', $vendorCode);
                         $offer->addChild('alias', $textUrl);
@@ -405,7 +406,7 @@ class YGenerator
                             $offer->addAttribute("id", $productId);
                         /* HERE SHOULD START A MACRO */
                         /*****************************/
-                        $offer->addAttribute("available", "true");
+                        $offer->addAttribute("available", $productStatus);
                         $offer->addChild('article', $article);
                         $offer->addChild('vendorCode', $vendorCode);
                         $offer->addChild('alias', $textUrl);

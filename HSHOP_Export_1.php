@@ -186,7 +186,7 @@ class YGenerator
                     $category->addChild("image", $this->base_url . $row2['image']);
                     // $category->addChild("url", $this->base_url . '/index.php?route=product/category&amp;category_id=' . $row2['category_id']);
                     $category->addChild("url", '' . $this->get_oc_url_alias($con, 'category', $row2['category_id'], $this->x_ocver));
-                    
+
                     while ($row = $result->fetch_assoc()) {
                         $language = $category->addChild("language");
                         $language->addAttribute("id", $row['language_id']);
@@ -308,9 +308,10 @@ class YGenerator
                                 $i = 0;
                                 foreach($alloptions as $option_values) {
                                         if(!$i) {
-                                            $offer->addAttribute("id", $option_values['artikul']);
-                                            $price = $option_values['price'];
                                             $article = $option_values['artikul'];
+                                            if(!$article) { $article = $option_values['product_id'] .  $option_values['option_id'] .  $option_values['product_option_value_id'] .  $option_values['option_value_id'] ;} 
+                                            $offer->addAttribute("id", $article);
+                                            $price = $option_values['price'];
                                             $vendorCode = $option_values['barcode'];
                                         }
                                         $i++;
@@ -349,7 +350,7 @@ class YGenerator
                                 $offer->addChild('picture', $value);
                             }
                         }
- 
+
                         $offer->addChild('vendor', $vendorName);
                         $offer->addChild('stock_quantity', $stock_quantity);
                         //$offer->addChild('store', "false");

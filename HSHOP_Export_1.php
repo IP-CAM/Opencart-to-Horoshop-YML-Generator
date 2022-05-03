@@ -747,19 +747,13 @@ class SimpleXMLExtended extends SimpleXMLElement {
 
       if($multilingual_tags) {
           $name .= '_' . str_replace(array(' ', '-'), '_', trim($languages[$langid]['code']));
-          if($cdata) {
-              $new_child = $this->addChildWithCDATA($name, $value);
-          } else {
-              $new_child = $this->addChild($name, $value);
-          }
-      } else {
+      }
           if($cdata) {
               $new_child = $this->addChildWithCDATA($name, $value);
           } else {
               $new_child = $this->addChild($name, $value);
           }
           $new_child->addAttribute('langid', $langid);
-      }
 
       return $new_child;
   }

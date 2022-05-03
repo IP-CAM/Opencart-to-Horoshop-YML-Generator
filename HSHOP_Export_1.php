@@ -399,6 +399,7 @@ class YGenerator
                             $valueAttribute = trim($listAttributes[$i]['valueAttribute']);
                             $valueAttribute = $this->cutExtraCharacters($valueAttribute);
                             $param = $offer->addChild('param', $valueAttribute);
+                            $param->addAttribute('type', 'attribute');
                             $param->addAttribute('name', $listAttributes[$i]['nameAttribute']);
                             $param->addAttribute('id', $listAttributes[$i]['attribute_id']);
                             $param->addAttribute('langid', $listAttributes[$i]['language_id']);
@@ -478,6 +479,7 @@ class YGenerator
                             $valueAttribute = trim($listAttributes[$i]['valueAttribute']);
                             $valueAttribute = $this->cutExtraCharacters($valueAttribute);
                             $param = $offer->addChild('param', $valueAttribute);
+                            $param->addAttribute('type', 'attribute');
                             $param->addAttribute('name', $listAttributes[$i]['nameAttribute']);
                             $param->addAttribute('id', $listAttributes[$i]['attribute_id']);
                             $param->addAttribute('langid', $listAttributes[$i]['language_id']);

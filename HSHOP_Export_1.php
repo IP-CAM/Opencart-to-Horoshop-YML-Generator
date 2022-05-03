@@ -23,13 +23,13 @@ if(php_sapi_name() == 'cli') {
     $base_url = 'https://horoshop.ua';
 } else {
     $arguments = $_REQUEST;
-    if(isset($_GET[XML_KEY])) {$XML_KEY=true;} else {$XML_KEY=false;}
+    if(isset($_GET['XML_KEY'])) {$XML_KEY=true;} else {$XML_KEY=false;}
     $base_url = sprintf(
         "%s://%s",
         isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
         $_SERVER['SERVER_NAME']
     );
-    if(isset($_GET[web_admin])) {
+    if(isset($_GET['web_admin'])) {
 ?>
 <html>
 <head>

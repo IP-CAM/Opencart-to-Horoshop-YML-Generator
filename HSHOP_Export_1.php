@@ -450,7 +450,7 @@ class YGenerator
                                     $text .= $this->get_additional_tabcontent($con, 'oc_product_newtabcontent', 'newtabcontent', $productId, $langid, true);
                                 }
 
-                            $o_name = addChildWithLangOptions($offer, 'name', $name, $langid, $this->x_multilang_tags, 0, $this->languages);
+                            $o_name = $offer->addChildWithLangOptions($offer, 'name', $name, $langid, $this->x_multilang_tags, 0, $this->languages);
                             $o_description = $offer->addChildWithLangOptions('description', html_entity_decode($text), $langid, $this->x_multilang_tags, 1, $this->languages);
                             $temp = $offer->addChild("meta_title", $description['meta_title']);
                             $temp->addAttribute('langid', $langid);

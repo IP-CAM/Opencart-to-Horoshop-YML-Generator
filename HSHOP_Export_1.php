@@ -49,7 +49,7 @@ if(php_sapi_name() == 'cli') {
     <label for="x_product_description_custom">Show CUSTOM product_description fields - multilingual (Created by any custom module)</label><input type="checkbox" name="x_product_description_custom" value="1"><br>
     <label for="x_product_id">Specific Product ID (for debug only):</label><input type="number" name="x_product_id" value=0><br>
     <label for="x_ocver">Opencart version:</label><select name="x_ocver"><option value="2">2</option><option value="3" selected>3</option></select><br>
-    <label for="x_multilang_tags">Show multilingual tags (name_ru, name_uk, description_ru, description_uk)</label><input type="checkbox" name="x_multilang_tags" value="1"><br>
+    <label for="x_multilang_tags">Show multilingual tags (name_ru, name_uk, description_ru, description_uk, etc)</label><input type="checkbox" name="x_multilang_tags" value="1"><br>
 <input type="submit" name="XML_KEY">
 </form>
 </body>
@@ -68,6 +68,8 @@ class YGenerator
 
     public $languages = array(); //Массив языков, которые используются на сайте;
     private $active_languages;  //Список активных языков
+    private $default_language;  //Код языка по умолчанию
+    private $default_language_id;  //ID Языка по умолчанию
     public  $base_url;          //URL сайта, базовый для ссылок и картинок
 
     private $x_lang = 0;  //Язык по умолчанчию (0, чтобы проигнорировать)
@@ -122,6 +124,7 @@ class YGenerator
 
         $this->languages = $this->getLanguages($con);
         $this->active_languages = array_keys($this->languages);
+        $this->default_language = $this->getDefaultLanguage($con);
 
         $xml = new SimpleXMLExtended("<?xml version=\"1.0\" encoding=\"UTF-8\"?><hcatalog/>");
         $dt = date("Y-m-d");
@@ -147,6 +150,11 @@ class YGenerator
           $language->addAttribute("id", $key);
           $language->addAttribute("name", $value['name']);
           $language->addAttribute("code", $value['code']);
+          if($value['code'] == $this->default_language) {
+              $language->addAttribute("default", 'true');
+              $this->default_language_id=$key;
+          }
+
         }
 
         // #### Categories Section ####
@@ -639,6 +647,19 @@ class YGenerator
             }
         }
         return $languages;
+    }
+
+    /**
+     * Gett default language
+     * @return string
+     */
+    private function getDefaultLanguage($con)
+    {
+        $sql = "SELECT value FROM oc_setting WHERE store_id=0 AND `key` = 'config_language'";
+        $result = $con->query($sql);
+        $row = $result->fetch_assoc();
+        $language = $row['value'];
+        return $language;
     }
 
         //Unused function

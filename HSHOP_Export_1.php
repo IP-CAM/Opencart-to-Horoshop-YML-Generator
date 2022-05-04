@@ -379,8 +379,8 @@ class YGenerator
                                     $text .= $this->get_additional_tabcontent($con, 'oc_product_secondtabcontent', 'secondtabcontent', $productId, $langid, true);
                                     $text .= $this->get_additional_tabcontent($con, 'oc_product_newtabcontent', 'newtabcontent', $productId, $langid, true);
                                 }
-                            $o_name = $offer->addChildWithLangOptions('name', $name, $langid, $this->x_multilang_tags, 0, $this->languages);
-                            $o_description = $offer->addChildWithLangOptions('description', html_entity_decode($text), $langid, $this->x_multilang_tags, 1, $this->languages);
+                            $o_name = $this->addChildWithLangOptions($offer, 'name', $name, $langid, $this->x_multilang_tags, 0, $this->languages);
+                            $o_description = $this->addChildWithLangOptions($offer, 'description', html_entity_decode($text), $langid, $this->x_multilang_tags, 1, $this->languages);
                             $temp = $offer->addChild("meta_title", $description['meta_title']);
                             $temp->addAttribute('langid', $langid);
                             unset($description['meta_title']);
@@ -459,8 +459,8 @@ class YGenerator
                                     $text .= $this->get_additional_tabcontent($con, 'oc_product_newtabcontent', 'newtabcontent', $productId, $langid, true);
                                 }
 
-                            $o_name = $offer->addChildWithLangOptions($offer, 'name', $name, $langid, $this->x_multilang_tags, 0, $this->languages);
-                            $o_description = $offer->addChildWithLangOptions('description', html_entity_decode($text), $langid, $this->x_multilang_tags, 1, $this->languages);
+                            $o_name = $this->addChildWithLangOptions($offer, 'name', $name, $langid, $this->x_multilang_tags, 0, $this->languages);
+                            $o_description = $this->addChildWithLangOptions($offer, 'description', html_entity_decode($text), $langid, $this->x_multilang_tags, 1, $this->languages);
                             $temp = $offer->addChild("meta_title", $description['meta_title']);
                             $temp->addAttribute('langid', $langid);
                             unset($description['meta_title']);
@@ -739,6 +739,21 @@ class YGenerator
             }
             return $tabcontent;
         }
+
+        public function addChildWithLangOptions($offer, $name, $value = NULL, $langid, $multilingual_tags = 0, $cdata = 0, $languages) {
+
+            if($multilingual_tags) {
+                $name .= '_' . str_replace(array(' ', '-'), '_', trim($languages[$langid]['code']));
+            }
+                if($cdata) {
+                    $new_child = $offer->addChildWithCDATA($name, $value);
+                } else {
+                    $new_child = $offer->addChild($name, $value);
+                }
+                $new_child->addAttribute('langid', $langid);
+
+            return $new_child;
+        }
 }
 
 // http://coffeerings.posterous.com/php-simplexml-and-cdata
@@ -764,21 +779,6 @@ class SimpleXMLExtended extends SimpleXMLElement {
     }
 
     return $new_child;
-  }
-
-  public function addChildWithLangOptions($name, $value = NULL, $langid, $multilingual_tags = 0, $cdata = 0, $languages) {
-
-      if($multilingual_tags) {
-          $name .= '_' . str_replace(array(' ', '-'), '_', trim($languages[$langid]['code']));
-      }
-          if($cdata) {
-              $new_child = $this->addChildWithCDATA($name, $value);
-          } else {
-              $new_child = $this->addChild($name, $value);
-          }
-          $new_child->addAttribute('langid', $langid);
-
-      return $new_child;
   }
 }
 

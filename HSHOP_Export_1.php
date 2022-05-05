@@ -18,6 +18,7 @@ if(php_sapi_name() == 'cli') {
         "x_ocver:",
         "x_tabcontent:",
         "x_multilang_tags:",
+        "x_multilang_tags_no_default:",
     ));
     $XML_KEY=true;
     $base_url = 'https://horoshop.ua';
@@ -50,6 +51,7 @@ if(php_sapi_name() == 'cli') {
     <label for="x_product_id">Specific Product ID (for debug only):</label><input type="number" name="x_product_id" value=0><br>
     <label for="x_ocver">Opencart version:</label><select name="x_ocver"><option value="2">2</option><option value="3" selected>3</option></select><br>
     <label for="x_multilang_tags">Show multilingual tags (name_ru, name_uk, description_ru, description_uk, etc)</label><input type="checkbox" name="x_multilang_tags" value="1"><br>
+    <label for="x_multilang_tags_no_default">Dont show multilingual tags for default language (name, name_uk, description, description_uk, etc)</label><input type="checkbox" name="x_multilang_tags_no_default" value="1"><br>
 <input type="submit" name="XML_KEY">
 </form>
 </body>
@@ -80,6 +82,7 @@ class YGenerator
     public $x_ocver = 3; //Версия опенкарт 2 или 3
     public $x_tabcontent = 0; //Вывести в description данные из вкладок oc_product_TABNAMEtabcontent
     public $x_multilang_tags = 0; //Вывести все теги как мультиязычные. Например: description_uk, description_ru вместо <description lang=1> 
+    public $x_multilang_tags_no_default = 0; //Вывести основной тег без мультиязычной приставки. Например: description, description_ru вместо <description lang=1> 
     public $x_product_description_custom = 0; //Выводить ли кастомные поля из oc_product_description автоматом (мультиязычные)?
     private $x_product_id; //id конкретного товара (для дебага). TODO: Перечисление через запятую товаров, если нужны конкретные id шники
 
@@ -743,7 +746,9 @@ class YGenerator
         public function addChildWithLangOptions($offer, $name, $value = NULL, $langid, $cdata = 0) {
 
             if($this->x_multilang_tags) {
-                $name .= '_' . str_replace(array(' ', '-'), '_', trim($this->languages[$langid]['code']));
+                if(!($this->x_multilang_tags_no_default && $this->default_language_id == $langid)) {
+                    $name .= '_' . str_replace(array(' ', '-'), '_', trim($this->languages[$langid]['code']));
+                }
             }
                 if($cdata) {
                     $new_child = $offer->addChildWithCDATA($name, $value);

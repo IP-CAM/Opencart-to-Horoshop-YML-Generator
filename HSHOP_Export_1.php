@@ -409,11 +409,10 @@ class YGenerator
                         for ($i = 0; $i < count($listAttributes); $i++) {
                             $valueAttribute = trim($listAttributes[$i]['valueAttribute']);
                             $valueAttribute = $this->cutExtraCharacters($valueAttribute);
-                            $param = $offer->addChild('param', $valueAttribute);
+                            $param = $this->addChildWithLangOptions($offer, 'param', $valueAttribute, $listAttributes[$i]['language_id'], 0);
                             $param->addAttribute('type', 'attribute');
                             $param->addAttribute('name', $listAttributes[$i]['nameAttribute']);
                             $param->addAttribute('id', $listAttributes[$i]['attribute_id']);
-                            $param->addAttribute('langid', $listAttributes[$i]['language_id']);
                         }
                         /*****************************/
                         /* //HERE SHOULD STOP A MACRO */
@@ -489,11 +488,10 @@ class YGenerator
                         for ($i = 0; $i < count($listAttributes); $i++) {
                             $valueAttribute = trim($listAttributes[$i]['valueAttribute']);
                             $valueAttribute = $this->cutExtraCharacters($valueAttribute);
-                            $param = $offer->addChild('param', $valueAttribute);
+                            $param = $this->addChildWithLangOptions($offer, 'param', $valueAttribute, $listAttributes[$i]['language_id'], 0);
                             $param->addAttribute('type', 'attribute');
                             $param->addAttribute('name', $listAttributes[$i]['nameAttribute']);
                             $param->addAttribute('id', $listAttributes[$i]['attribute_id']);
-                            $param->addAttribute('langid', $listAttributes[$i]['language_id']);
                         }
                         /*****************************/
                         /* //HERE SHOULD STOP A MACRO */

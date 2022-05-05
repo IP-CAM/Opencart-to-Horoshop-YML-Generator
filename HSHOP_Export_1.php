@@ -394,8 +394,7 @@ class YGenerator
 
                             if($this->x_product_description_custom) {
                                 foreach($description as $key=>$value) {
-                                    $temp = $offer->addChildWithCDATA($key, html_entity_decode($value));
-                                    $temp->addAttribute('langid', $langid);
+                                    $temp = $this->addChildWithLangOptions($offer, $key, html_entity_decode($value), $langid, 1);
                                     $temp->addAttribute('type', 'custom');
                                 }
                             }
@@ -469,8 +468,7 @@ class YGenerator
 
                             if($this->x_product_description_custom) {
                                 foreach($description as $key=>$value) {
-                                    $temp = $offer->addChildWithCDATA($key, html_entity_decode($value));
-                                    $temp->addAttribute('langid', $langid);
+                                    $temp = $this->addChildWithLangOptions($offer, $key, html_entity_decode($value), $langid, 1);
                                     $temp->addAttribute('type', 'custom');
                                 }
                             }

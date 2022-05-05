@@ -326,12 +326,11 @@ class YGenerator
                                             $vendorCode = $option_values['barcode'];
                                         }
                                         $i++;
-                                        $option = $offer->addChild('param', $option_values['name']);
+                                        $option = $this->addChildWithLangOptions($offer, 'param', $option_values['name'], $option_values['language_id'], 0);
                                         $option->addAttribute('name', $option_values['option_name']);
                                         $option->addAttribute('id', $option_values['option_id']);
                                         $option->addAttribute('value_id', $option_values['option_value_id']);
                                         $option->addAttribute('type', 'modification');
-                                        $option->addAttribute('langid', $option_values['language_id']);
 
 
                                         /*$option->addChild('name', $option_values['name']);

@@ -381,11 +381,11 @@ class YGenerator
                                     $text .= $this->get_additional_tabcontent($con, 'oc_product_secondtabcontent', 'secondtabcontent', $productId, $langid, true);
                                     $text .= $this->get_additional_tabcontent($con, 'oc_product_newtabcontent', 'newtabcontent', $productId, $langid, true);
                                 }
-                            $o_name = $this->addChildWithLangOptions($offer, 'name', $name, $langid, 0);
+                            $o_name = $this->addChildWithLangOptions($offer, 'name', $name, $langid, 1);
                             $o_description = $this->addChildWithLangOptions($offer, 'description', html_entity_decode($text), $langid, 1);
-                            $temp = $this->addChildWithLangOptions($offer, 'meta_title', $description['meta_title'], $langid, 0);
+                            $temp = $this->addChildWithLangOptions($offer, 'meta_title', $description['meta_title'], $langid, 1);
                             unset($description['meta_title']);
-                            $temp = $this->addChildWithLangOptions($offer, 'meta_keyword', $description['meta_keyword'], $langid, 0);
+                            $temp = $this->addChildWithLangOptions($offer, 'meta_keyword', $description['meta_keyword'], $langid, 1);
                             unset($description['meta_keyword']);
                             $temp = $this->addChildWithLangOptions($offer, 'meta_description', $description['meta_description'], $langid, 1);
                             unset($description['meta_description']);
@@ -457,11 +457,11 @@ class YGenerator
                                     $text .= $this->get_additional_tabcontent($con, 'oc_product_newtabcontent', 'newtabcontent', $productId, $langid, true);
                                 }
 
-                            $o_name = $this->addChildWithLangOptions($offer, 'name', $name, $langid, 0);
+                            $o_name = $this->addChildWithLangOptions($offer, 'name', $name, $langid, 1);
                             $o_description = $this->addChildWithLangOptions($offer, 'description', html_entity_decode($text), $langid, 1);
-                            $temp = $this->addChildWithLangOptions($offer, 'meta_title', $description['meta_title'], $langid, 0);
+                            $temp = $this->addChildWithLangOptions($offer, 'meta_title', $description['meta_title'], $langid, 1);
                             unset($description['meta_title']);
-                            $temp = $this->addChildWithLangOptions($offer, 'meta_keyword', $description['meta_keyword'], $langid, 0);
+                            $temp = $this->addChildWithLangOptions($offer, 'meta_keyword', $description['meta_keyword'], $langid, 1);
                             unset($description['meta_keyword']);
                             $temp = $this->addChildWithLangOptions($offer, 'meta_description', $description['meta_description'], $langid, 1);
                             unset($description['meta_description']);

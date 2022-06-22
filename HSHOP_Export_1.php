@@ -735,6 +735,18 @@ class YGenerator
         }
 
         public function addChildWithLangOptions($offer, $name, $value = NULL, $langid, $cdata = 0) {
+            //ремонтуємо калічний опис товарів
+            //згідно з: https://webcollab.sourceforge.io/unicode.html (Character Validation)
+            if($name == 'description') {
+$value = preg_replace('/[\x00-\x08\x10\x0B\x0C\x0E-\x19\x7F]'.
+'|(?<=^|[\x00-\x7F])[\x80-\xBF]+'.
+'|([\xC0\xC1]|[\xF0-\xFF])[\x80-\xBF]*'.
+'|[\xC2-\xDF]((?![\x80-\xBF])|[\x80-\xBF]{2,})'.
+'|[\xE0-\xEF](([\x80-\xBF](?![\x80-\xBF]))|(?![\x80-\xBF]{2})|[\x80-\xBF]{3,})/',
+'�', $value );
+$value = preg_replace('/\xE0[\x80-\x9F][\x80-\xBF]'.
+'|\xED[\xA0-\xBF][\x80-\xBF]/S','?', $value );
+            }
 
             if($this->x_multilang_tags) {
                 if(!($this->x_multilang_tags_no_default && $this->default_language_id == $langid)) {

@@ -47,6 +47,8 @@ https://site.com.ua/HSHOP_Export_1.php?XML_KEY=
 <li>        x_product_id (число) - вивести данні лише одного товару з id=x_product_id. Корисно для відладки.</li>
 <li>        x_ocver - (2,3) версія опенкарт 2 чи 3.</li>
 <li>        x_fix_utf - автоматично виправляти помилки кодування UTF (биті символи).</li>
+<li>        x_show_empty_aliases = 1; //В разі відсутності alias в базі виводити типу index.php?route=product/category&path=ID</li>
+
 </ul>
 
 Для спрощення налаштування, скрипт містить міні веб-адмінку, що доступна за посиланням:

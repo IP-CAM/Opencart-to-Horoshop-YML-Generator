@@ -20,6 +20,7 @@ if(php_sapi_name() == 'cli') {
         "x_multilang_tags:",
         "x_multilang_tags_no_default:",
         "x_fix_utf:",
+        "x_show_empty_aliases:",
     ));
     $XML_KEY=true;
     $base_url = 'https://horoshop.ua';
@@ -87,6 +88,7 @@ class YGenerator
     public $x_product_description_custom = 0; //Выводить ли кастомные поля из oc_product_description автоматом (мультиязычные)?
     private $x_product_id; //id конкретного товара (для дебага). TODO: Перечисление через запятую товаров, если нужны конкретные id шники
     private $x_fix_utf = 1; //автоматично виправляти биті UTF символи
+    private $x_show_empty_aliases = 1; //В разі відсутності alias в базі виводити типу index.php?route=product/category&path=ID
 
     public function __construct($arguments) {
         //?? is php7+ dependend function. May fail on ancient php5.x installations
@@ -717,6 +719,13 @@ class YGenerator
                 }
              } else {
                 $keyword = 'nope';
+             }
+            if ($keyword == '' && $this->x_show_empty_aliases) {
+                if ($type == 'category') {
+                    $keyword = "index.php?route=product/category&amp;path=${id}";
+                } else {
+                    $keyword = "index.php?route=product/product&amp;product_id=${id}";
+                }
             }
         return $keyword;
         }

@@ -206,7 +206,7 @@ class YGenerator
                         $language->addChild("meta_title", htmlspecialchars($row['meta_title']));
                         $language->addChild("meta_keyword", htmlspecialchars($row['meta_keyword']));
                         $language->addChild("meta_description", htmlspecialchars($row['meta_description']));
-                        $language->addChild("h1", htmlspecialchars($row['h1']));
+                        if(array_key_exists('h1', $row)) { $language->addChild("h1", htmlspecialchars($row['h1'])); }
                     }
                     } //fullcat (!simplecat)
                 }
@@ -389,8 +389,10 @@ class YGenerator
                             unset($description['meta_keyword']);
                             $temp = $this->addChildWithLangOptions($offer, 'meta_description', $description['meta_description'], $langid, 1);
                             unset($description['meta_description']);
-                            $temp = $this->addChildWithLangOptions($offer, 'h1', $description['meta_h1'], $langid, 0);
-                            unset($description['meta_h1']);
+                            if(array_key_exists('meta_h1', $description)) {
+                                $temp = $this->addChildWithLangOptions($offer, 'h1', $description['meta_h1'], $langid, 0);
+                                unset($description['meta_h1']);
+                            }
 
                             if($this->x_product_description_custom) {
                                 foreach($description as $key=>$value) {
@@ -463,8 +465,10 @@ class YGenerator
                             unset($description['meta_keyword']);
                             $temp = $this->addChildWithLangOptions($offer, 'meta_description', $description['meta_description'], $langid, 1);
                             unset($description['meta_description']);
-                            $temp = $this->addChildWithLangOptions($offer, 'h1', $description['meta_h1'], $langid, 0);
-                            unset($description['meta_h1']);
+                            if(array_key_exists('meta_h1', $description)) {
+                                $temp = $this->addChildWithLangOptions($offer, 'h1', $description['meta_h1'], $langid, 0);
+                                unset($description['meta_h1']);
+                            }
 
                             if($this->x_product_description_custom) {
                                 foreach($description as $key=>$value) {

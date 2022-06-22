@@ -19,6 +19,7 @@ if(php_sapi_name() == 'cli') {
         "x_tabcontent:",
         "x_multilang_tags:",
         "x_multilang_tags_no_default:",
+        "x_fix_utf:",
     ));
     $XML_KEY=true;
     $base_url = 'https://horoshop.ua';
@@ -85,6 +86,7 @@ class YGenerator
     public $x_multilang_tags_no_default = 0; //Вывести основной тег без мультиязычной приставки. Например: description, description_ru вместо <description lang=1> 
     public $x_product_description_custom = 0; //Выводить ли кастомные поля из oc_product_description автоматом (мультиязычные)?
     private $x_product_id; //id конкретного товара (для дебага). TODO: Перечисление через запятую товаров, если нужны конкретные id шники
+    private $x_fix_utf = 1; //автоматично виправляти биті UTF символи
 
     public function __construct($arguments) {
         //?? is php7+ dependend function. May fail on ancient php5.x installations
@@ -737,15 +739,15 @@ class YGenerator
         public function addChildWithLangOptions($offer, $name, $value = NULL, $langid, $cdata = 0) {
             //ремонтуємо калічний опис товарів
             //згідно з: https://webcollab.sourceforge.io/unicode.html (Character Validation)
-            if($name == 'description') {
+            if($this->x_fix_utf) {
 $value = preg_replace('/[\x00-\x08\x10\x0B\x0C\x0E-\x19\x7F]'.
 '|(?<=^|[\x00-\x7F])[\x80-\xBF]+'.
 '|([\xC0\xC1]|[\xF0-\xFF])[\x80-\xBF]*'.
 '|[\xC2-\xDF]((?![\x80-\xBF])|[\x80-\xBF]{2,})'.
 '|[\xE0-\xEF](([\x80-\xBF](?![\x80-\xBF]))|(?![\x80-\xBF]{2})|[\x80-\xBF]{3,})/',
-'�', $value );
+'☆', $value );
 $value = preg_replace('/\xE0[\x80-\x9F][\x80-\xBF]'.
-'|\xED[\xA0-\xBF][\x80-\xBF]/S','?', $value );
+'|\xED[\xA0-\xBF][\x80-\xBF]/S','❉', $value );
             }
 
             if($this->x_multilang_tags) {

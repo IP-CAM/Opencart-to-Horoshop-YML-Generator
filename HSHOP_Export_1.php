@@ -811,7 +811,7 @@ if($XML_KEY) {
     }
 
     $xml = $yGenerator->getYml();
-    Header('Content-type: text/xml');
+    Header('Content-type: text/xml; charset=utf-8');
 
     if($yGenerator->x_pretty) {
       $doc = new DOMDocument();

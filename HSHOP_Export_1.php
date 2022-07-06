@@ -21,6 +21,7 @@ if(php_sapi_name() == 'cli') {
         "x_multilang_tags_no_default:",
         "x_fix_utf:",
         "x_show_empty_aliases:",
+        "x_quantity_status:",
     ));
     $XML_KEY=true;
     $base_url = 'https://horoshop.ua';
@@ -54,6 +55,8 @@ if(php_sapi_name() == 'cli') {
     <label for="x_ocver">Opencart version:</label><select name="x_ocver"><option value="2">2</option><option value="3" selected>3</option></select><br>
     <label for="x_multilang_tags">Show multilingual tags (name_ru, name_uk, description_ru, description_uk, etc)</label><input type="checkbox" name="x_multilang_tags" value="1"><br>
     <label for="x_multilang_tags_no_default">Dont show multilingual tags for default language (name, name_uk, description, description_uk, etc)</label><input type="checkbox" name="x_multilang_tags_no_default" value="1"><br>
+    <label for="x_quantity_status">use quantity field as avaliable attribute instead of status field</label><input type="checkbox" name="x_quantity_status" value="1"><br>
+
 <input type="submit" name="XML_KEY">
 </form>
 </body>
@@ -89,6 +92,7 @@ class YGenerator
     private $x_product_id; //id конкретного товара (для дебага). TODO: Перечисление через запятую товаров, если нужны конкретные id шники
     private $x_fix_utf = 1; //автоматично виправляти биті UTF символи
     private $x_show_empty_aliases = 1; //В разі відсутності alias в базі виводити типу index.php?route=product/category&path=ID
+    private $x_quantity_status = 0; //Статус товару avaliable=true/false брати не з поля status а з кількості (якщо quantity > 0, то true)
 
     public function __construct($arguments) {
         //?? is php7+ dependend function. May fail on ancient php5.x installations
@@ -228,7 +232,6 @@ class YGenerator
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
                 $productId = $row['product_id'];
-                $productStatus = $row['status'] ? 'true' : 'false';
                 $manufacturerId = $row['manufacturer_id'];
                 $vendorName = $this->getVendorName($con, $manufacturerId);
                 $stock_quantity = $row['quantity'];
@@ -328,6 +331,12 @@ class YGenerator
                                             $offer->addAttribute("id", $article);
                                             $price = $option_values['price'];
                                             $vendorCode = $option_values['barcode'];
+                                            $stock_quantity = $option_values['quantity'];
+                                            if($this->x_quantity_status) {
+                                                $productStatus = ($option_values['quantity'] > 0) ? 'true' : 'false';
+                                            } else {
+                                                $productStatus = $row['status'] ? 'true' : 'false';
+                                            }
                                         }
                                         $i++;
                                         $option = $this->addChildWithLangOptions($offer, 'param', $option_values['name'], $option_values['language_id'], 0);
@@ -421,6 +430,11 @@ class YGenerator
                         } else {
                             $offer = $offers->addChild('offer');
                             $offer->addAttribute("id", $productId);
+                            if($this->x_quantity_status) {
+                                $productStatus = ($row['quantity'] > 0) ? 'true' : 'false';
+                            } else {
+                                $productStatus = $row['status'] ? 'true' : 'false';
+                            }
                         /* HERE SHOULD START A MACRO */
                         /*****************************/
                         $offer->addAttribute("available", $productStatus);

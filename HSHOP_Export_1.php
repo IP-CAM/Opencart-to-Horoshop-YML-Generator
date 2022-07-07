@@ -319,6 +319,7 @@ class YGenerator
                         // var_dump($alloptions); die();
                         //if($alloptions) { $offer->addChild('options', var_export($alloptions, true)); }
                         if($alloptions) {
+                            $price0 = $price; //Price of basic modification
                             foreach($alloptions_sorted as $alloptions) {
                                 $offer = $offers->addChild('offer');
                                 $offer->addAttribute("group_id", $productId);

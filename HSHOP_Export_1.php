@@ -77,7 +77,7 @@ class YGenerator
     private $active_languages;  //Список активных языков
     private $default_language;  //Код языка по умолчанию
     private $default_language_id;  //ID Языка по умолчанию
-    public  $base_url;          //URL сайта, базовый для ссылок и картинок
+    public  $base_url;          //URL сайта, базовый для ссылок и картинок в формате: https://site.com.ua
 
     private $x_lang = 0;  //Язык по умолчанчию (0, чтобы проигнорировать)
     private $x_limit = 10; //Ограничение в количестве товаров (для отладки, чтоб быстрее работало)

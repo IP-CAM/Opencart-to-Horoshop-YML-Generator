@@ -2,6 +2,9 @@
 /**
  * YML generator for Horoshop.ua
  */
+//Suppress notices
+error_reporting(E_ALL ^ E_NOTICE);
+set_time_limit(1900);
 
 require_once __DIR__ . '/config.php';
 
@@ -171,7 +174,7 @@ class YGenerator
         // #### Categories Section ####
         $categories = $shop->addChild('categories');
         $sql = "SELECT * FROM `oc_category` WHERE 1";
-        $sql .= ' AND status = 1';
+        // $sql .= ' AND status = 1';
         $sql .= ' ORDER BY `category_id`';
         if($this->x_cat_limit) { $sql .= " LIMIT $this->x_cat_limit"; }
 
@@ -330,7 +333,7 @@ class YGenerator
                                             $article = $option_values['artikul'];
                                             if(!$article) { $article = $option_values['product_id'] .  $option_values['option_id'] .  $option_values['product_option_value_id'] .  $option_values['option_value_id'] ;} 
                                             $offer->addAttribute("id", $article);
-                                            $price = $option_values['price'];
+                                            $price = $price0 + $option_values['price'];
                                             $vendorCode = $option_values['barcode'];
                                             $stock_quantity = $option_values['quantity'];
                                             if($this->x_quantity_status) {

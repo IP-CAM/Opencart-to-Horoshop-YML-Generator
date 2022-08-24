@@ -18,6 +18,7 @@ if(php_sapi_name() == 'cli') {
         "x_baseurl:",
         "x_product_description_custom:",
         "x_product_id:",
+        "x_product_status:",
         "x_ocver:",
         "x_tabcontent:",
         "x_multilang_tags:",
@@ -93,6 +94,7 @@ class YGenerator
     public $x_multilang_tags_no_default = 0; //Вывести основной тег без мультиязычной приставки. Например: description, description_ru вместо <description lang=1> 
     public $x_product_description_custom = 0; //Выводить ли кастомные поля из oc_product_description автоматом (мультиязычные)?
     private $x_product_id; //id конкретного товара (для дебага). TODO: Перечисление через запятую товаров, если нужны конкретные id шники
+    private $x_product_status = 1; //Виводити лише товари зі status=x_product_status (за умовчанням = 1, якщо треба всі товари, то = 0)
     private $x_fix_utf = 1; //автоматично виправляти биті UTF символи
     private $x_show_empty_aliases = 1; //В разі відсутності alias в базі виводити типу index.php?route=product/category&path=ID
     private $x_quantity_status = 0; //Статус товару avaliable=true/false брати не з поля status а з кількості (якщо quantity > 0, то true)
@@ -229,7 +231,9 @@ class YGenerator
         $offers = $shop->addChild('offers');
         //$sql = "SELECT * FROM  `oc_product` WHERE `quantity` > 0";
         $sql = "SELECT * FROM  `oc_product`";
-        if($this->x_product_id) { $sql .= " WHERE product_id = $this->x_product_id"; }
+        $sql .= " WHERE 1";
+        $sql .= " AND status = $this->x_product_status";
+        if($this->x_product_id) { $sql .= " AND product_id = $this->x_product_id"; }
         if($this->x_limit) { $sql .= " LIMIT $this->x_limit"; }
         $result = $con->query($sql);
         if ($result->num_rows > 0) {

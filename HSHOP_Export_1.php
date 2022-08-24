@@ -525,9 +525,9 @@ class YGenerator
      */
     private function cutExtraCharacters($str){
     //unused function. Returns the same as input. May be useful in future for attributes.
-        $cyr = [
+        $cyr = array(
             ' кг', ' л', ' Вт', ' куб. м/ч', ' см', ' дБ'
-        ];
+        );
 
         //$str = str_replace($cyr, '', $str);
         return $str;

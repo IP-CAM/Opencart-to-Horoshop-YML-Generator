@@ -716,7 +716,12 @@ class YGenerator
                         WHERE pov.product_id = '". (int)$product_id. "'");
                 }
                 $result = $con->query($sql);
-                return $result->fetch_all(MYSQLI_ASSOC);
+                //return $result->fetch_all(MYSQLI_ASSOC);
+                $return = array();
+                while ($return[] = $result->fetch_assoc()) {
+                    //nope
+                }
+                return $return;
         }
         private function get_oc_url_alias($con, $type, $id, $ocver = 3, $lang = 0) {
             if($ocver == 3) {

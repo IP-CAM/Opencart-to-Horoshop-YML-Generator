@@ -175,7 +175,7 @@ class YGenerator
 
         // #### Categories Section ####
         $categories = $shop->addChild('categories');
-        $sql = "SELECT * FROM `oc_category` WHERE 1";
+        $sql = "SELECT * FROM `" . DB_PREFIX . "category` WHERE 1";
         // $sql .= ' AND status = 1';
         $sql .= ' ORDER BY `category_id`';
         if($this->x_cat_limit) { $sql .= " LIMIT $this->x_cat_limit"; }
@@ -183,7 +183,7 @@ class YGenerator
         $result2 = $con->query($sql);
         if ($result2->num_rows > 0) {
             while ($row2 = $result2->fetch_assoc()) {
-                $sql = "SELECT * FROM `oc_category_description` WHERE category_id = '" . $row2['category_id'] . "'";
+                $sql = "SELECT * FROM `" . DB_PREFIX . "category_description` WHERE category_id = '" . $row2['category_id'] . "'";
                 if($this->x_lang) { $sql .= " AND language_id = $this->x_lang"; }
                 else { $sql .= ' AND language_id IN(' . implode(',',$this->active_languages) . ')'; }
                 $result = $con->query($sql);
@@ -229,8 +229,8 @@ class YGenerator
 
         // #### Offers Section ####
         $offers = $shop->addChild('offers');
-        //$sql = "SELECT * FROM  `oc_product` WHERE `quantity` > 0";
-        $sql = "SELECT * FROM  `oc_product`";
+        //$sql = "SELECT * FROM  `" . DB_PREFIX . "product` WHERE `quantity` > 0";
+        $sql = "SELECT * FROM  `" . DB_PREFIX . "product`";
         $sql .= " WHERE 1";
         $sql .= " AND status = $this->x_product_status";
         if($this->x_product_id) { $sql .= " AND product_id = $this->x_product_id"; }
@@ -248,7 +248,7 @@ class YGenerator
                 $img = $this->base_url . '/image/' . $row['image'];
 
                 //Multiple pictures section
-                $sql3 = "SELECT * FROM `oc_product_image` WHERE `product_id` = '$productId' ORDER BY sort_order ASC";
+                $sql3 = "SELECT * FROM `" . DB_PREFIX . "product_image` WHERE `product_id` = '$productId' ORDER BY sort_order ASC";
                 $result3 = $con->query($sql3);
                 $images=array();
                 if ($result3->num_rows > 0) {
@@ -259,7 +259,7 @@ class YGenerator
 
                 // #### Attribute section ####
                 $listAttributes = array();
-                $sql3 = "SELECT * FROM `oc_product_attribute` WHERE `product_id` = '$productId'";
+                $sql3 = "SELECT * FROM `" . DB_PREFIX . "product_attribute` WHERE `product_id` = '$productId'";
                 if($this->x_lang) { $sql3 .= " AND language_id = $this->x_lang"; }
                 else { $sql3 .= ' AND language_id IN(' . implode(',',$this->active_languages) . ')'; }
 
@@ -286,7 +286,7 @@ class YGenerator
                         $category = $this->getCategoryOfProduct($con, $productId);
 
                         $descriptions = array();
-                        $sql2 = "SELECT * FROM `oc_product_description` WHERE `product_id` = '$productId'";
+                        $sql2 = "SELECT * FROM `" . DB_PREFIX . "product_description` WHERE `product_id` = '$productId'";
                         if($this->x_lang) { $sql2 .= " AND language_id = $this->x_lang"; }
                         else { $sql2 .= ' AND language_id IN(' . implode(',',$this->active_languages) . ')'; }
                         $result2 = $con->query($sql2);
@@ -546,7 +546,7 @@ class YGenerator
      */
     private function getAttributeSortOrder($con, $attributeId)
     {
-        $sql = "SELECT `sort_order` FROM `oc_attribute` WHERE `attribute_id` = '$attributeId'";
+        $sql = "SELECT `sort_order` FROM `" . DB_PREFIX . "attribute` WHERE `attribute_id` = '$attributeId'";
         $result = $con->query($sql);
         $sortOrder = 0;
         if ($result->num_rows > 0) {
@@ -566,7 +566,7 @@ class YGenerator
      */
     private function getNameAttributeById($con, $attributeId, $language_id)
     {
-        $sql = "SELECT `name` FROM `oc_attribute_description` WHERE `attribute_id` = '$attributeId'";
+        $sql = "SELECT `name` FROM `" . DB_PREFIX . "attribute_description` WHERE `attribute_id` = '$attributeId'";
         $sql .= " AND language_id = $language_id";
         $result = $con->query($sql);
         $name = '';
@@ -602,7 +602,7 @@ class YGenerator
      */
     private function getCategoryOfProduct($con, $productId)
     {
-        $sql = "SELECT `category_id` FROM `oc_product_to_category` WHERE `product_id` = '$productId'";
+        $sql = "SELECT `category_id` FROM `" . DB_PREFIX . "product_to_category` WHERE `product_id` = '$productId'";
         $result = $con->query($sql);
         $categoryId = 0;
         if ($result->num_rows > 0) {
@@ -621,7 +621,7 @@ class YGenerator
      */
     private function getParentIdCategory($con, $codeGroup)
     {
-        $sql = "SELECT `parent_id` FROM `oc_category` WHERE `category_id` = '$codeGroup'";
+        $sql = "SELECT `parent_id` FROM `" . DB_PREFIX . "category` WHERE `category_id` = '$codeGroup'";
         $result = $con->query($sql);
         $parentId = 0;
         if ($result->num_rows > 0) {
@@ -640,7 +640,7 @@ class YGenerator
      */
     private function getVendorName($con, $manufacturerId)
     {
-        $sql = "SELECT `name` FROM  `oc_manufacturer` WHERE `manufacturer_id` = '$manufacturerId'";
+        $sql = "SELECT `name` FROM  `" . DB_PREFIX . "manufacturer` WHERE `manufacturer_id` = '$manufacturerId'";
         $result = $con->query($sql);
         $nameVendor = '';
         if ($result->num_rows > 0) {
@@ -657,7 +657,7 @@ class YGenerator
      */
     private function getLanguages($con)
     {
-        $sql = "SELECT * FROM oc_language WHERE `status` = '1'";
+        $sql = "SELECT * FROM " . DB_PREFIX . "language WHERE `status` = '1'";
         $result = $con->query($sql);
         $languages = array();
         if ($result->num_rows > 0) {
@@ -675,7 +675,7 @@ class YGenerator
      */
     private function getDefaultLanguage($con)
     {
-        $sql = "SELECT value FROM oc_setting WHERE store_id=0 AND `key` = 'config_language'";
+        $sql = "SELECT value FROM " . DB_PREFIX . "setting WHERE store_id=0 AND `key` = 'config_language'";
         $result = $con->query($sql);
         $row = $result->fetch_assoc();
         $language = $row['value'];
@@ -726,7 +726,7 @@ class YGenerator
         private function get_oc_url_alias($con, $type, $id, $ocver = 3, $lang = 0) {
             if($ocver == 3) {
                 $query = $type . '_id=' . $id;
-                $sql = "SELECT * FROM oc_seo_url WHERE query='$query'";
+                $sql = "SELECT * FROM " . DB_PREFIX . "seo_url WHERE query='$query'";
                 $result = $con->query($sql);
                 $keyword = '';
                 if ($result->num_rows > 0) {
@@ -736,7 +736,7 @@ class YGenerator
                 }
             } else if($ocver == 2) {
                 $query = $type . '_id=' . $id;
-                $sql = "SELECT * FROM oc_url_alias WHERE query='$query'";
+                $sql = "SELECT * FROM " . DB_PREFIX . "url_alias WHERE query='$query'";
                 $result = $con->query($sql);
                 $keyword = '';
                 if ($result->num_rows > 0) {

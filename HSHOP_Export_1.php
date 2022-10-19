@@ -694,7 +694,12 @@ class YGenerator
                         WHERE pov.option_id IN (". implode(',', array_map('intval', $option_ids)) .") AND pov.product_id = '". (int)$product_id."'
                                 AND ovd.language_id = '$lang'");
                 $result = $con->query($sql);
-                return $result->fetch_all(MYSQLI_ASSOC);
+                //return $result->fetch_all(MYSQLI_ASSOC);
+                $return = array();
+                while ($rez = $result->fetch_assoc()) {
+                    $return[] = $rez;
+                }
+                return $return;
         }
 
         public function getAllProductOptions($con, $product_id) {
@@ -718,8 +723,8 @@ class YGenerator
                 $result = $con->query($sql);
                 //return $result->fetch_all(MYSQLI_ASSOC);
                 $return = array();
-                while ($return[] = $result->fetch_assoc()) {
-                    //nope
+                while ($rez = $result->fetch_assoc()) {
+                    $return[] = $rez;
                 }
                 return $return;
         }

@@ -48,7 +48,7 @@ https://site.com.ua/HSHOP_Export_1.php?XML_KEY=
 <li>        x_ocver - (2,3) версія опенкарт 2 чи 3.</li>
 <li>        x_fix_utf - автоматично виправляти помилки кодування UTF (биті символи).</li>
 <li>        x_show_empty_aliases = 1; //В разі відсутності alias в базі виводити типу index.php?route=product/category&path=ID</li>
-<li>     private $x_quantity_status = 0; //Статус товару avaliable=true/false брати не з поля status а з кількості (якщо quantity > 0, то true)</li>
+<li>        x_quantity_status = 0; //Статус товару avaliable=true/false брати не з поля status а з кількості (якщо quantity > 0, то true)</li>
 
 </ul>
 

@@ -26,6 +26,7 @@ if(php_sapi_name() == 'cli') {
         "x_fix_utf:",
         "x_show_empty_aliases:",
         "x_quantity_status:",
+        "x_swap_modelsku:",
     ));
     $XML_KEY=true;
     $base_url = 'https://horoshop.ua';
@@ -60,6 +61,7 @@ if(php_sapi_name() == 'cli') {
     <label for="x_multilang_tags">Show multilingual tags (name_ru, name_uk, description_ru, description_uk, etc)</label><input type="checkbox" name="x_multilang_tags" value="1"><br>
     <label for="x_multilang_tags_no_default">Dont show multilingual tags for default language (name, name_uk, description, description_uk, etc)</label><input type="checkbox" name="x_multilang_tags_no_default" value="1"><br>
     <label for="x_quantity_status">use quantity field as avaliable attribute instead of status field</label><input type="checkbox" name="x_quantity_status" value="1"><br>
+    <label for="x_swap_modelsku">Swap model and SKU (article and VendorCode)</label><input type="checkbox" name="x_swap_modelsku" value="1"><br>
 
 <input type="submit" name="XML_KEY">
 </form>
@@ -98,6 +100,7 @@ class YGenerator
     private $x_fix_utf = 1; //автоматично виправляти биті UTF символи
     private $x_show_empty_aliases = 1; //В разі відсутності alias в базі виводити типу index.php?route=product/category&path=ID
     private $x_quantity_status = 0; //Статус товару avaliable=true/false брати не з поля status а з кількості (якщо quantity > 0, то true)
+    private $x_swap_modelsku = 0; //Замінити місцями article та vendor code. За умовчанням article=sku vendorcode=model
 
     public function __construct($arguments) {
         //?? is php7+ dependend function. May fail on ancient php5.x installations
@@ -243,8 +246,13 @@ class YGenerator
                 $vendorName = $this->getVendorName($con, $manufacturerId);
                 $stock_quantity = $row['quantity'];
                 $price = $row['price'];
-                $article = trim($row['model']);
-                $vendorCode = trim($row['sku']);
+                if($this->x_swap_modelsku) {
+                    $article = trim($row['model']);
+                    $vendorCode = trim($row['sku']);
+                } else {
+                    $article = trim($row['sku']);
+                    $vendorCode = trim($row['model']);
+                }
                 $img = $this->base_url . '/image/' . $row['image'];
 
                 //Multiple pictures section

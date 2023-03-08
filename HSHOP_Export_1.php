@@ -27,6 +27,7 @@ if(php_sapi_name() == 'cli') {
         "x_show_empty_aliases:",
         "x_quantity_status:",
         "x_swap_modelsku:",
+        "x_alias_category_level:",
     ));
     $XML_KEY=true;
     $base_url = 'https://horoshop.ua';
@@ -80,6 +81,7 @@ class YGenerator
 {
 
     public $languages = array(); //Массив языков, которые используются на сайте;
+    public $categories_array = array(); //Інформація про категорію: id, url, parent
     private $active_languages;  //Список активных языков
     private $default_language;  //Код языка по умолчанию
     private $default_language_id;  //ID Языка по умолчанию
@@ -101,6 +103,7 @@ class YGenerator
     private $x_show_empty_aliases = 1; //В разі відсутності alias в базі виводити типу index.php?route=product/category&path=ID
     private $x_quantity_status = 0; //Статус товару avaliable=true/false брати не з поля status а з кількості (якщо quantity > 0, то true)
     private $x_swap_modelsku = 0; //Замінити місцями article та vendor code. За умовчанням article=sku vendorcode=model
+    private $x_alias_category_level = 0; //Кількість alias категорій в url товару (не працює з x_simplecat)
 
     public function __construct($arguments) {
         //?? is php7+ dependend function. May fail on ancient php5.x installations
@@ -212,7 +215,11 @@ class YGenerator
                     $category->addChild("top", $row2['top']);
                     $category->addChild("image", $this->base_url . '/image/' . $row2['image']);
                     // $category->addChild("url", $this->base_url . '/index.php?route=product/category&amp;category_id=' . $row2['category_id']);
-                    $category->addChild("url", '' . $this->get_oc_url_alias($con, 'category', $row2['category_id'], $this->x_ocver));
+                    $cat_url = $this->get_oc_url_alias($con, 'category', $row2['category_id'], $this->x_ocver, $this->x_lang);
+                    $category->addChild("url", '' . $cat_url);
+
+                    $this->categories_array[$row2['category_id']]['url'] = $cat_url;
+                    $this->categories_array[$row2['category_id']]['parent'] = $parentId;
 
                     while ($row = $result->fetch_assoc()) {
                         $language = $category->addChild("language");
@@ -290,8 +297,17 @@ class YGenerator
                     //don't adding the product if min attributes
 //////                    if (count($listAttributes) > 4 && strlen($row['image']) > 4) {
                         // $textUrl = $this->base_url . '/index.php?route=product/product&amp;product_id=' . $productId;
-                        $textUrl = '' . $this->get_oc_url_alias($con, 'product', $productId, $this->x_ocver);
+                        $textUrl = '' . $this->get_oc_url_alias($con, 'product', $productId, $this->x_ocver, $this->x_lang);
                         $category = $this->getCategoryOfProduct($con, $productId);
+                        if ($this->x_alias_category_level) {
+                            $seo_prefix_category = $category;
+                            $parent_category = $this->categories_array[$seo_prefix_category]['parent'];
+                            while($parent_category) {
+                                $seo_prefix_category = $parent_category;
+                                $parent_category = $this->categories_array[$parent_category]['parent'];
+                            }
+                             $textUrl = $this->categories_array[$seo_prefix_category]['url'] . '/' . $textUrl;
+                        }
 
                         $descriptions = array();
                         $sql2 = "SELECT * FROM `" . DB_PREFIX . "product_description` WHERE `product_id` = '$productId'";

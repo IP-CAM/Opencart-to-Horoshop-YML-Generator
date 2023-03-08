@@ -210,7 +210,7 @@ class YGenerator
                     }
                     $category->addChild("sort_order", $row2['sort_order']);
                     $category->addChild("top", $row2['top']);
-                    $category->addChild("image", $this->base_url . $row2['image']);
+                    $category->addChild("image", $this->base_url . '/image/' . $row2['image']);
                     // $category->addChild("url", $this->base_url . '/index.php?route=product/category&amp;category_id=' . $row2['category_id']);
                     $category->addChild("url", '' . $this->get_oc_url_alias($con, 'category', $row2['category_id'], $this->x_ocver));
 
